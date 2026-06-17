@@ -20,14 +20,25 @@
 
 ```mermaid
 flowchart LR
-    U[研究者] -->|需求| C[指挥官 Claude]
-    C -->|写 plan / 定验收| P[plan 文件]
-    P --> E[执行官 Codex]
-    E -->|落地执行| R[代码 / 实验 / 文稿]
-    R -->|写复盘| RT[复盘报告]
-    RT --> RV{外部审查<br/>独立 Agent}
-    RV -->|打回| C
-    RV -->|通过| D[正式产出]
+    U([研究者需求]):::user --> C
+    subgraph CMD [指挥官 Claude · CLAUDE.md]
+        C[拆解 / 写 plan / 定验收]:::cmd
+    end
+    subgraph EXE [执行官 Codex · AGENTS.md]
+        E[读 plan / 落地执行 / 写复盘]:::exe
+    end
+    subgraph REV [外部审查 · 独立 Agent]
+        R{逐文件核查}:::rev
+    end
+    C -->|plan 文件| E
+    E -->|代码 / 实验 / 文稿 + 复盘| R
+    R -->|打回重做| C
+    R -->|通过| D([✅ 正式产出]):::done
+    classDef user fill:#ffffff,stroke:#6b7280,color:#374151
+    classDef cmd fill:#FBEDE2,stroke:#D85B16,color:#1E3A5F
+    classDef exe fill:#E8F0F7,stroke:#1E3A5F,color:#1E3A5F
+    classDef rev fill:#FEF3C7,stroke:#D97706,color:#92400E
+    classDef done fill:#DCFCE7,stroke:#16A34A,color:#166534
 ```
 
 - **指挥官（Claude）**：拆解任务、写 plan、定验收标准、复核终审 —— 受 [`CLAUDE.md`](./CLAUDE.md) 约束。
