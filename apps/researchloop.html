@@ -3,575 +3,270 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="color-scheme" content="light">
-  <meta name="description" content="ResearchLoop V4 is a dual-loop workflow for governing AI-agent work with gates, evidence, review, and reproducible handoff artifacts.">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2716%27 fill=%27%232563eb%27/%3E%3Ccircle cx=%2726%27 cy=%2730%27 r=%2714%27 fill=%27none%27 stroke=%27white%27 stroke-width=%275%27/%3E%3Ccircle cx=%2739%27 cy=%2736%27 r=%2712%27 fill=%27none%27 stroke=%27%2306b6d4%27 stroke-width=%275%27/%3E%3C/svg%3E">
-  <title>ResearchLoop V4 — Multi-Agent Workflow Demo</title>
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="ResearchLoop V4.1 是一个中文双循环 AI Agent 工作流控制台，展示 GPT-Pro、Claude 与 Codex 的方案校验循环和执行验证循环。">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2716%27 fill=%27%2307111f%27/%3E%3Cpath d=%27M18 21c7-8 20-8 27 0 7 8 5 20-4 26-7 5-18 4-24-3%27 fill=%27none%27 stroke=%27%232dd4ff%27 stroke-width=%275%27 stroke-linecap=%27round%27/%3E%3Cpath d=%27M45 43c-7 8-20 8-27 0-7-8-5-20 4-26 7-5 18-4 24 3%27 fill=%27none%27 stroke=%27%238b5cf6%27 stroke-width=%275%27 stroke-linecap=%27round%27/%3E%3C/svg%3E">
+  <title>ResearchLoop V4.1 — 中文双循环 Agent 工作流控制台</title>
   <style>
     :root {
-      --ink: #091526;
-      --ink-2: #1b2c45;
-      --muted: #5e6f86;
-      --subtle: #8492a7;
-      --paper: #f7fbff;
-      --card: rgba(255, 255, 255, 0.82);
-      --card-strong: #ffffff;
-      --line: rgba(28, 53, 84, 0.14);
-      --line-strong: rgba(37, 99, 235, 0.24);
-      --blue: #2563eb;
-      --blue-2: #0ea5e9;
-      --cyan: #06b6d4;
-      --violet: #7c3aed;
+      --bg: #07111f;
+      --bg-2: #0b1628;
+      --panel: rgba(15, 29, 51, 0.78);
+      --panel-2: rgba(10, 22, 40, 0.9);
+      --line: rgba(148, 163, 184, 0.18);
+      --line-strong: rgba(45, 212, 255, 0.35);
+      --text: #f8fbff;
+      --muted: #9fb4ce;
+      --muted-2: #6f84a2;
+      --cyan: #2dd4ff;
+      --cyan-2: #06b6d4;
+      --violet: #8b5cf6;
+      --violet-2: #a78bfa;
       --amber: #f59e0b;
-      --orange: #f97316;
       --emerald: #10b981;
       --red: #ef4444;
-      --navy: #08111f;
-      --deep: #0f1e36;
-      --glow-blue: 0 18px 70px rgba(37, 99, 235, 0.28);
-      --glow-cyan: 0 22px 90px rgba(6, 182, 212, 0.22);
-      --shadow: 0 18px 54px rgba(15, 30, 54, 0.13);
-      --shadow-soft: 0 12px 30px rgba(15, 30, 54, 0.09);
-      --radius-xl: 34px;
+      --blue: #2563eb;
+      --white-soft: rgba(255,255,255,0.78);
+      --shadow-cyan: 0 0 48px rgba(45, 212, 255, 0.23);
+      --shadow-violet: 0 0 54px rgba(139, 92, 246, 0.24);
+      --shadow-dark: 0 24px 80px rgba(0,0,0,0.35);
+      --radius-xl: 32px;
       --radius-lg: 24px;
-      --radius-md: 18px;
-      --radius-sm: 12px;
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --radius-md: 16px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
       --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", "Microsoft YaHei", Arial, sans-serif;
     }
-
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
     body {
       margin: 0;
+      color: var(--text);
       font-family: var(--sans);
-      color: var(--ink);
       background:
-        radial-gradient(circle at 8% -8%, rgba(37, 99, 235, 0.18), transparent 36rem),
-        radial-gradient(circle at 92% 6%, rgba(124, 58, 237, 0.15), transparent 32rem),
-        radial-gradient(circle at 70% 48%, rgba(6, 182, 212, 0.12), transparent 36rem),
-        linear-gradient(180deg, #f7fbff 0%, #eef6ff 47%, #f9fbff 100%);
+        radial-gradient(circle at 14% 4%, rgba(45,212,255,0.18), transparent 28rem),
+        radial-gradient(circle at 86% 8%, rgba(139,92,246,0.18), transparent 30rem),
+        radial-gradient(circle at 52% 48%, rgba(16,185,129,0.08), transparent 36rem),
+        linear-gradient(180deg, #07111f 0%, #081325 48%, #09111d 100%);
       min-height: 100vh;
       overflow-x: hidden;
     }
-
-    a { color: inherit; text-decoration: none; }
-    img { max-width: 100%; display: block; }
-    button, input, textarea, select { font: inherit; }
-    button { cursor: pointer; }
-    ::selection { background: rgba(37, 99, 235, 0.18); }
-
-    .noise {
+    body::before {
+      content: "";
       position: fixed;
       inset: 0;
       pointer-events: none;
-      opacity: 0.3;
-      z-index: -1;
       background-image:
-        linear-gradient(rgba(9, 21, 38, 0.025) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(9, 21, 38, 0.025) 1px, transparent 1px);
-      background-size: 28px 28px;
-      mask-image: linear-gradient(180deg, #000 0%, transparent 82%);
+        linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+      background-size: 32px 32px;
+      mask-image: radial-gradient(circle at 50% 20%, #000 0 35%, transparent 78%);
+      z-index: -1;
     }
-
-    .shell { width: min(1180px, calc(100% - 36px)); margin: 0 auto; }
+    a { color: inherit; text-decoration: none; }
+    button, textarea, select { font: inherit; }
+    button { cursor: pointer; }
+    img { display: block; max-width: 100%; }
+    ::selection { background: rgba(45, 212, 255, 0.24); }
+    .shell { width: min(1220px, calc(100% - 36px)); margin: 0 auto; }
     .topbar {
       position: sticky;
       top: 0;
-      z-index: 50;
-      backdrop-filter: blur(22px);
-      background: rgba(248, 251, 255, 0.78);
-      border-bottom: 1px solid rgba(37, 99, 235, 0.13);
+      z-index: 60;
+      background: rgba(7,17,31,0.72);
+      border-bottom: 1px solid rgba(148,163,184,0.16);
+      backdrop-filter: blur(20px);
     }
-    .nav {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 18px;
-      min-height: 74px;
-    }
+    .nav { min-height: 72px; display: flex; align-items: center; justify-content: space-between; gap: 18px; }
     .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
     .mark {
-      width: 42px;
-      height: 42px;
-      border-radius: 15px;
-      position: relative;
-      overflow: hidden;
+      width: 44px; height: 44px; border-radius: 16px;
       background:
-        radial-gradient(circle at 28% 25%, #7dd3fc 0 12%, transparent 13%),
-        linear-gradient(135deg, var(--blue), var(--cyan) 52%, var(--violet));
-      box-shadow: var(--glow-blue);
+        conic-gradient(from 30deg, var(--cyan), var(--violet), var(--emerald), var(--cyan));
+      box-shadow: var(--shadow-cyan);
+      position: relative;
     }
-    .mark::before, .mark::after {
-      content: "";
-      position: absolute;
-      border: 2px solid rgba(255, 255, 255, 0.86);
+    .mark::before { content:""; position:absolute; inset:7px; border-radius: 12px; background: var(--bg); }
+    .mark::after { content:"∞"; position:absolute; inset:0; display:grid; place-items:center; color:var(--cyan); font-size:26px; font-weight:900; }
+    .brand strong { display:block; letter-spacing:-0.03em; }
+    .brand span span { display:block; color:var(--muted); font-size:12px; margin-top:2px; }
+    .navlinks { display:flex; gap:4px; align-items:center; overflow-x:auto; scrollbar-width:none; }
+    .navlinks::-webkit-scrollbar { display:none; }
+    .navlinks a { color: var(--muted); padding: 9px 11px; border-radius:999px; white-space:nowrap; font-size:13px; }
+    .navlinks a:hover, .navlinks a:focus-visible { color:var(--text); background:rgba(45,212,255,0.09); }
+    .repo-btn, .btn {
+      border: 1px solid rgba(45,212,255,0.22);
+      color: var(--text);
+      background: rgba(255,255,255,0.06);
+      padding: 11px 14px;
       border-radius: 999px;
-    }
-    .mark::before { width: 22px; height: 22px; left: 8px; top: 8px; }
-    .mark::after { width: 15px; height: 15px; right: 8px; bottom: 8px; }
-    .brand strong { display: block; font-size: 16px; letter-spacing: -0.02em; }
-    .brand span { display: block; color: var(--muted); font-size: 12px; margin-top: 2px; }
-    .navlinks { display: flex; align-items: center; gap: 4px; overflow-x: auto; scrollbar-width: none; }
-    .navlinks::-webkit-scrollbar { display: none; }
-    .navlinks a {
-      color: var(--muted);
-      padding: 9px 11px;
-      border-radius: 999px;
-      font-size: 13px;
-      white-space: nowrap;
-    }
-    .navlinks a:hover, .navlinks a:focus-visible { color: var(--ink); background: rgba(37, 99, 235, 0.08); }
-    .github-cta {
       display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 15px;
-      color: #fff;
-      background: linear-gradient(135deg, var(--ink), var(--blue));
-      border: 0;
-      border-radius: 999px;
-      box-shadow: var(--shadow-soft);
-      white-space: nowrap;
-      font-weight: 700;
-      font-size: 13px;
-    }
-
-    .hero { padding: 72px 0 42px; position: relative; }
-    .hero-grid { display: grid; grid-template-columns: minmax(0, 1.03fr) minmax(360px, 0.8fr); gap: 34px; align-items: center; }
-    .eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      padding: 8px 12px;
-      border: 1px solid rgba(37, 99, 235, 0.18);
-      background: rgba(255, 255, 255, 0.72);
-      border-radius: 999px;
-      color: var(--blue);
-      font-weight: 800;
-      font-size: 13px;
-      box-shadow: var(--shadow-soft);
-    }
-    .eyebrow i { width: 9px; height: 9px; border-radius: 50%; background: var(--emerald); box-shadow: 0 0 0 7px rgba(16, 185, 129, 0.12); }
-    h1 {
-      margin: 22px 0 18px;
-      font-size: clamp(42px, 7vw, 82px);
-      line-height: 0.94;
-      letter-spacing: -0.075em;
-      color: var(--navy);
-    }
-    .gradient-text {
-      background: linear-gradient(110deg, var(--blue) 0%, var(--cyan) 38%, var(--violet) 72%, #1f2937 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-    .hero-lead {
-      margin: 0 0 26px;
-      max-width: 820px;
-      color: var(--ink-2);
-      font-size: clamp(17px, 2vw, 21px);
-      line-height: 1.75;
-    }
-    .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 26px 0; }
-    .btn {
-      border: 1px solid rgba(37, 99, 235, 0.18);
-      border-radius: 999px;
-      padding: 13px 18px;
-      background: rgba(255, 255, 255, 0.86);
-      color: var(--ink);
+      align-items:center;
+      gap:8px;
       font-weight: 850;
-      box-shadow: var(--shadow-soft);
-      transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 9px;
+      box-shadow: 0 12px 36px rgba(0,0,0,0.18);
+      transition: transform .18s ease, border-color .18s ease, background .18s ease;
     }
-    .btn:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
-    .btn.primary { color: #fff; border-color: transparent; background: linear-gradient(135deg, var(--blue), var(--cyan)); box-shadow: var(--glow-blue); }
-    .btn.dark { color: #fff; border-color: rgba(255,255,255,0.12); background: linear-gradient(135deg, var(--navy), #1c3155); }
-    .btn.ghost { box-shadow: none; background: rgba(255,255,255,0.56); }
-    .quick-proof { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; max-width: 720px; }
-    .proof-card {
-      padding: 14px;
-      background: rgba(255, 255, 255, 0.75);
-      border: 1px solid rgba(37, 99, 235, 0.12);
-      border-radius: 18px;
-      box-shadow: var(--shadow-soft);
-    }
-    .proof-card strong { display: block; font-size: 20px; letter-spacing: -0.04em; color: var(--navy); }
-    .proof-card span { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; line-height: 1.45; }
+    .btn:hover, .repo-btn:hover { transform: translateY(-2px); border-color: rgba(45,212,255,0.55); background: rgba(45,212,255,0.12); }
+    .btn.primary { border:0; background: linear-gradient(135deg, var(--cyan), var(--blue)); color:#03101f; box-shadow: var(--shadow-cyan); }
+    .btn.violet { border:0; background: linear-gradient(135deg, var(--violet), #4f46e5); color:#fff; box-shadow: var(--shadow-violet); }
+    .btn.amber { border:0; background: linear-gradient(135deg, var(--amber), #f97316); color:#160d00; }
+    .btn.small { padding: 8px 11px; font-size: 13px; }
 
-    .orbit-card {
-      position: relative;
-      padding: 20px;
-      border-radius: var(--radius-xl);
-      background:
-        linear-gradient(160deg, rgba(255,255,255,0.82), rgba(255,255,255,0.48)),
-        radial-gradient(circle at 20% 10%, rgba(37,99,235,0.28), transparent 18rem),
-        radial-gradient(circle at 88% 22%, rgba(124,58,237,0.22), transparent 18rem);
-      border: 1px solid rgba(255, 255, 255, 0.7);
-      box-shadow: 0 30px 100px rgba(15, 30, 54, 0.18);
-      overflow: hidden;
-    }
-    .orbit-card::before {
-      content: "";
-      position: absolute;
-      width: 420px;
-      height: 420px;
-      right: -210px;
-      top: -170px;
-      border-radius: 50%;
-      background: conic-gradient(from 120deg, rgba(37,99,235,0.18), rgba(6,182,212,0.18), rgba(124,58,237,0.22), rgba(37,99,235,0.18));
-      filter: blur(6px);
-    }
-    .console {
-      position: relative;
-      border-radius: 26px;
-      overflow: hidden;
-      background: #08111f;
-      color: #e6f3ff;
-      border: 1px solid rgba(255,255,255,0.16);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), var(--glow-cyan);
-    }
-    .console-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.04); }
-    .dots { display: flex; gap: 7px; }
-    .dots i { width: 10px; height: 10px; border-radius: 50%; background: #fb7185; }
-    .dots i:nth-child(2) { background: #fbbf24; }
-    .dots i:nth-child(3) { background: #34d399; }
-    .console-head span { color: #9fb4ce; font-size: 12px; font-family: var(--mono); }
-    .console-body { padding: 18px; display: grid; gap: 14px; }
-    .run-card { border-radius: 18px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.09); padding: 14px; }
-    .run-card header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
-    .run-card h3 { margin: 0; font-size: 15px; color: #f8fbff; }
-    .run-card p { margin: 0; color: #a9bfd8; line-height: 1.65; font-size: 13px; }
-    .pill { display: inline-flex; align-items: center; gap: 7px; border-radius: 999px; padding: 6px 9px; font-size: 12px; font-weight: 800; border: 1px solid rgba(255,255,255,0.14); }
-    .pill.blue { color: #bfdbfe; background: rgba(37,99,235,0.18); }
-    .pill.green { color: #bbf7d0; background: rgba(16,185,129,0.16); }
-    .pill.amber { color: #fde68a; background: rgba(245,158,11,0.14); }
-    .mini-flow { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
-    .mini-flow span { padding: 9px 8px; border-radius: 12px; background: rgba(255,255,255,0.07); color: #d7e9ff; font-family: var(--mono); font-size: 12px; text-align: center; }
+    .hero { padding: 76px 0 34px; }
+    .hero-grid { display:grid; grid-template-columns: minmax(0, 1.05fr) minmax(360px, .78fr); gap:34px; align-items:center; }
+    .eyebrow { display:inline-flex; gap:9px; align-items:center; color:var(--cyan); background:rgba(45,212,255,0.1); border:1px solid rgba(45,212,255,0.22); padding:8px 12px; border-radius:999px; font-weight:900; font-size:13px; }
+    .eyebrow i { width:9px; height:9px; border-radius:50%; background:var(--emerald); box-shadow:0 0 0 7px rgba(16,185,129,0.14); }
+    h1 { margin:22px 0 18px; font-size:clamp(42px, 7vw, 78px); line-height:.98; letter-spacing:-.065em; }
+    .gradient-text { background:linear-gradient(105deg, var(--cyan), var(--violet-2) 46%, #f8fbff 86%); -webkit-background-clip:text; background-clip:text; color:transparent; }
+    .lead { color:#c7d7ea; font-size:clamp(17px,2vw,21px); line-height:1.8; max-width:850px; margin:0; }
+    .hero-actions { display:flex; flex-wrap:wrap; gap:12px; margin:28px 0 20px; }
+    .role-strip { display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap:12px; margin-top:24px; }
+    .role-card { border:1px solid var(--line); background:rgba(255,255,255,0.055); border-radius:20px; padding:15px; min-height:118px; position:relative; overflow:hidden; }
+    .role-card::after { content:""; position:absolute; width:130px; height:130px; border-radius:50%; right:-60px; bottom:-70px; background:radial-gradient(circle, rgba(45,212,255,.16), transparent 70%); }
+    .role-card.claude::after { background:radial-gradient(circle, rgba(245,158,11,.16), transparent 70%); }
+    .role-card.codex::after { background:radial-gradient(circle, rgba(139,92,246,.18), transparent 70%); }
+    .role-card strong { display:block; font-size:18px; margin-bottom:8px; }
+    .role-card span { color:var(--muted); line-height:1.55; font-size:13px; }
+    .hero-panel { border:1px solid rgba(255,255,255,0.13); background:linear-gradient(180deg, rgba(15,29,51,.82), rgba(7,17,31,.92)); border-radius:var(--radius-xl); padding:18px; box-shadow:var(--shadow-dark); }
+    .loop-summary { display:grid; gap:14px; }
+    .summary-card { border:1px solid var(--line); border-radius:24px; padding:18px; background:rgba(255,255,255,0.055); }
+    .summary-card h3 { margin:0 0 10px; font-size:22px; letter-spacing:-.04em; }
+    .summary-card p { margin:0; color:var(--muted); line-height:1.7; }
+    .summary-card.loop1 { box-shadow: inset 4px 0 0 var(--cyan); }
+    .summary-card.loop2 { box-shadow: inset 4px 0 0 var(--violet); }
+    .mini-cycle { display:grid; grid-template-columns: 1fr auto 1fr; gap:10px; align-items:center; margin-top:14px; }
+    .mini-cycle span { border:1px solid var(--line); background:rgba(255,255,255,.055); border-radius:14px; padding:10px; text-align:center; color:#dbeafe; font-weight:850; font-size:13px; }
+    .mini-cycle b { color:var(--amber); font-size:20px; }
 
-    section { padding: 54px 0; }
-    .section-head { display: flex; justify-content: space-between; align-items: end; gap: 22px; margin-bottom: 22px; }
-    .kicker { color: var(--blue); font-weight: 900; letter-spacing: 0.12em; text-transform: uppercase; font-size: 12px; }
-    h2 { margin: 8px 0 0; font-size: clamp(30px, 4vw, 50px); line-height: 1.05; letter-spacing: -0.055em; color: var(--navy); }
-    .section-copy { margin: 8px 0 0; color: var(--muted); line-height: 1.75; max-width: 680px; }
+    section { padding: 48px 0; }
+    .section-head { display:flex; justify-content:space-between; align-items:end; gap:24px; margin-bottom:22px; }
+    .kicker { color:var(--cyan); text-transform:uppercase; letter-spacing:.14em; font-weight:900; font-size:12px; }
+    h2 { margin:8px 0 0; font-size:clamp(30px,4vw,50px); line-height:1.08; letter-spacing:-.05em; }
+    .section-copy { color:var(--muted); line-height:1.75; max-width:690px; margin:8px 0 0; }
+    .panel { background:var(--panel); border:1px solid var(--line); border-radius:var(--radius-lg); box-shadow:var(--shadow-dark); backdrop-filter: blur(16px); }
 
-    .card {
-      background: var(--card);
-      border: 1px solid rgba(37, 99, 235, 0.13);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-soft);
-      backdrop-filter: blur(18px);
+    .control-layout { display:grid; grid-template-columns:minmax(0, 1.15fr) minmax(360px, .8fr); gap:18px; align-items:start; }
+    .control-room { padding:20px; position:relative; overflow:hidden; }
+    .control-room::before { content:""; position:absolute; inset:20px; border-radius:36px; border:1px dashed rgba(45,212,255,.14); pointer-events:none; }
+    .control-toolbar { position:relative; z-index:2; display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between; align-items:center; margin-bottom:18px; }
+    .round-badge { display:inline-flex; gap:8px; align-items:center; padding:9px 12px; border-radius:999px; border:1px solid rgba(16,185,129,.25); background:rgba(16,185,129,.1); color:#bbf7d0; font-weight:900; }
+    .toolbar-buttons { display:flex; gap:9px; flex-wrap:wrap; }
+    .loop-grid { position:relative; z-index:2; display:grid; grid-template-columns:1fr; gap:16px; }
+    .loop-card { border:1px solid var(--line); border-radius:28px; background:rgba(255,255,255,.045); padding:18px; position:relative; overflow:hidden; }
+    .loop-card.active-loop { border-color:rgba(45,212,255,.52); box-shadow:var(--shadow-cyan); }
+    .loop-card.loop2.active-loop { border-color:rgba(139,92,246,.55); box-shadow:var(--shadow-violet); }
+    .loop-card::after { content:""; position:absolute; width:260px; height:260px; right:-120px; top:-120px; border-radius:50%; background:radial-gradient(circle, rgba(45,212,255,.14), transparent 70%); }
+    .loop-card.loop2::after { background:radial-gradient(circle, rgba(139,92,246,.16), transparent 70%); }
+    .loop-title { display:flex; justify-content:space-between; gap:14px; align-items:start; margin-bottom:15px; position:relative; z-index:2; }
+    .loop-title h3 { margin:0; font-size:24px; letter-spacing:-.04em; }
+    .loop-title p { margin:5px 0 0; color:var(--muted); line-height:1.55; }
+    .loop-badge { font-family:var(--mono); color:#06111f; background:var(--cyan); border-radius:999px; padding:7px 10px; font-weight:900; white-space:nowrap; }
+    .loop2 .loop-badge { color:#fff; background:var(--violet); }
+    .node-track { position:relative; z-index:2; display:grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap:10px; }
+    .node {
+      min-height:112px;
+      border:1px solid rgba(148,163,184,.18);
+      background:rgba(7,17,31,.64);
+      color:var(--text);
+      border-radius:20px;
+      padding:13px;
+      text-align:left;
+      position:relative;
+      overflow:hidden;
+      transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease, background .18s ease;
     }
-    .card.pad { padding: 22px; }
-    .grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
-    .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
-    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
-    .feature {
-      position: relative;
-      padding: 22px;
-      overflow: hidden;
-      min-height: 180px;
-    }
-    .feature::after {
-      content: "";
-      position: absolute;
-      inset: auto -30px -60px auto;
-      width: 150px;
-      height: 150px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(37,99,235,0.12), transparent 70%);
-    }
-    .icon {
-      width: 42px;
-      height: 42px;
-      display: inline-grid;
-      place-items: center;
-      border-radius: 15px;
-      color: #fff;
-      font-weight: 900;
-      background: linear-gradient(135deg, var(--blue), var(--cyan));
-      box-shadow: var(--glow-blue);
-    }
-    .feature h3, .card h3 { margin: 15px 0 8px; font-size: 19px; letter-spacing: -0.03em; color: var(--navy); }
-    .feature p, .card p { color: var(--muted); line-height: 1.72; margin: 0; }
+    .node::before { content:""; position:absolute; left:12px; right:12px; top:0; height:3px; border-radius:999px; background:var(--cyan); opacity:.65; }
+    .loop2 .node::before { background:var(--violet); }
+    .node:hover { transform:translateY(-2px); border-color:rgba(45,212,255,.42); }
+    .loop2 .node:hover { border-color:rgba(139,92,246,.48); }
+    .node.active { background:linear-gradient(180deg, rgba(45,212,255,.16), rgba(7,17,31,.76)); border-color:rgba(45,212,255,.72); box-shadow:0 0 0 1px rgba(45,212,255,.22), var(--shadow-cyan); }
+    .loop2 .node.active { background:linear-gradient(180deg, rgba(139,92,246,.2), rgba(7,17,31,.78)); border-color:rgba(139,92,246,.72); box-shadow:0 0 0 1px rgba(139,92,246,.25), var(--shadow-violet); }
+    .node small { color:var(--muted); font-family:var(--mono); font-weight:850; }
+    .node strong { display:block; margin:8px 0 6px; font-size:15px; line-height:1.35; }
+    .node span { color:#bfd0e7; font-size:12px; line-height:1.45; }
+    .node .agent-dot { position:absolute; right:10px; top:10px; width:10px; height:10px; border-radius:50%; background:var(--cyan); box-shadow:0 0 14px var(--cyan); }
+    .node[data-agent="Claude"] .agent-dot { background:var(--amber); box-shadow:0 0 14px var(--amber); }
+    .node[data-agent="Codex"] .agent-dot { background:var(--violet); box-shadow:0 0 14px var(--violet); }
+    .bridge-strip { position:relative; z-index:2; display:flex; justify-content:center; margin:3px 0; }
+    .bridge-strip span { border:1px solid rgba(245,158,11,.28); color:#fde68a; background:rgba(245,158,11,.1); padding:8px 12px; border-radius:999px; font-weight:900; }
 
-    .compare { align-items: stretch; }
-    .compare-card { padding: 24px; position: relative; overflow: hidden; }
-    .compare-card.bad { background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,247,237,0.78)); border-color: rgba(249,115,22,0.18); }
-    .compare-card.good { background: linear-gradient(180deg, rgba(255,255,255,0.94), rgba(236,253,245,0.8)); border-color: rgba(16,185,129,0.22); }
-    .compare-card ul { margin: 14px 0 0; padding: 0; list-style: none; display: grid; gap: 10px; }
-    .compare-card li { display: flex; gap: 10px; color: var(--ink-2); line-height: 1.6; }
-    .compare-card li::before { content: ""; flex: 0 0 9px; width: 9px; height: 9px; border-radius: 50%; margin-top: 9px; background: var(--orange); }
-    .compare-card.good li::before { background: var(--emerald); }
+    .cockpit { padding:20px; position:sticky; top:92px; }
+    .active-agent { display:flex; justify-content:space-between; gap:12px; align-items:center; }
+    .agent-chip { display:inline-flex; align-items:center; gap:8px; border-radius:999px; padding:8px 12px; background:rgba(45,212,255,.12); border:1px solid rgba(45,212,255,.25); color:#a5f3fc; font-weight:950; }
+    .agent-chip.claude { background:rgba(245,158,11,.12); border-color:rgba(245,158,11,.28); color:#fde68a; }
+    .agent-chip.codex { background:rgba(139,92,246,.13); border-color:rgba(139,92,246,.32); color:#ddd6fe; }
+    .signal { border-radius:999px; padding:8px 11px; font-weight:950; font-family:var(--mono); font-size:12px; }
+    .signal.blocker { color:#fecaca; background:rgba(239,68,68,.14); border:1px solid rgba(239,68,68,.3); }
+    .signal.risk { color:#fde68a; background:rgba(245,158,11,.13); border:1px solid rgba(245,158,11,.28); }
+    .signal.pass { color:#bbf7d0; background:rgba(16,185,129,.13); border:1px solid rgba(16,185,129,.28); }
+    .signal.draft { color:#bae6fd; background:rgba(45,212,255,.1); border:1px solid rgba(45,212,255,.24); }
+    .cockpit h3 { margin:18px 0 10px; font-size:30px; line-height:1.12; letter-spacing:-.045em; }
+    .cockpit p { color:#c6d7ea; line-height:1.75; margin:0; }
+    .meta-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:16px 0; }
+    .meta { border:1px solid var(--line); background:rgba(255,255,255,.045); border-radius:16px; padding:12px; }
+    .meta b { display:block; color:var(--muted); font-size:12px; margin-bottom:5px; }
+    .meta span { color:var(--text); font-weight:850; line-height:1.45; }
+    .state-chain { display:grid; grid-template-columns:repeat(4,1fr); gap:7px; margin-top:16px; }
+    .state-chain span { text-align:center; border:1px solid var(--line); border-radius:999px; padding:7px 6px; font-size:12px; color:var(--muted); font-weight:850; }
+    .state-chain span.active { color:#06111f; background:var(--cyan); border-color:transparent; }
+    .state-chain span.done { color:#bbf7d0; border-color:rgba(16,185,129,.32); background:rgba(16,185,129,.1); }
 
-    .lab-wrap { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(360px, 1fr); gap: 18px; align-items: stretch; }
-    .control-panel { padding: 22px; display: grid; gap: 15px; }
-    .field label, .checkset legend { display: block; font-weight: 850; margin-bottom: 8px; color: var(--ink); }
-    textarea, select {
-      width: 100%;
-      border: 1px solid rgba(37,99,235,0.16);
-      background: rgba(255,255,255,0.88);
-      color: var(--ink);
-      border-radius: 16px;
-      padding: 13px 14px;
-      outline: none;
-      transition: border-color 0.16s ease, box-shadow 0.16s ease;
-    }
-    textarea { min-height: 128px; resize: vertical; line-height: 1.58; }
-    textarea:focus, select:focus { border-color: rgba(37,99,235,0.48); box-shadow: 0 0 0 4px rgba(37,99,235,0.12); }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .checkset { border: 0; padding: 0; margin: 0; }
-    .checks { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
-    .check {
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      padding: 10px 11px;
-      border: 1px solid rgba(37,99,235,0.12);
-      border-radius: 14px;
-      background: rgba(255,255,255,0.68);
-      color: var(--ink-2);
-      font-size: 14px;
-    }
-    .check input { accent-color: var(--blue); }
-    .output-panel { overflow: hidden; display: grid; grid-template-rows: auto 1fr auto; }
-    .output-top {
-      padding: 18px 20px;
-      display: flex;
-      justify-content: space-between;
-      gap: 14px;
-      align-items: center;
-      border-bottom: 1px solid var(--line);
-      background: linear-gradient(90deg, rgba(37,99,235,0.08), rgba(6,182,212,0.06));
-    }
-    .track-badge { display: inline-flex; align-items: center; gap: 8px; padding: 8px 11px; border-radius: 999px; color: #fff; font-weight: 900; font-size: 13px; background: linear-gradient(135deg, var(--blue), var(--violet)); }
-    .track-badge.light { background: linear-gradient(135deg, #16a34a, var(--emerald)); }
-    .track-badge.standard { background: linear-gradient(135deg, var(--blue), var(--cyan)); }
-    .track-badge.heavy { background: linear-gradient(135deg, var(--orange), var(--red)); }
-    .artifact-list { display: flex; gap: 8px; flex-wrap: wrap; }
-    .chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      padding: 7px 10px;
-      border-radius: 999px;
-      background: rgba(37,99,235,0.08);
-      border: 1px solid rgba(37,99,235,0.14);
-      color: var(--ink-2);
-      font-size: 12px;
-      font-weight: 800;
-    }
-    .chip.green { background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.2); }
-    .chip.amber { background: rgba(245,158,11,0.11); border-color: rgba(245,158,11,0.22); }
-    .chip.violet { background: rgba(124,58,237,0.1); border-color: rgba(124,58,237,0.18); }
-    .packet {
-      margin: 0;
-      min-height: 360px;
-      overflow: auto;
-      padding: 20px;
-      background: #07111f;
-      color: #dbeafe;
-      font-family: var(--mono);
-      font-size: 13px;
-      line-height: 1.75;
-      white-space: pre-wrap;
-    }
-    .output-actions { padding: 15px 18px; display: flex; justify-content: space-between; align-items: center; gap: 12px; background: rgba(255,255,255,0.72); border-top: 1px solid var(--line); }
-    .hint { color: var(--muted); font-size: 13px; }
+    .linked-grid { display:grid; grid-template-columns:minmax(0, .95fr) minmax(0, 1.05fr); gap:18px; margin-top:18px; }
+    .linked-panel { padding:18px; }
+    .linked-panel h3 { margin:0 0 12px; font-size:22px; letter-spacing:-.03em; }
+    .evidence-list { display:grid; gap:10px; }
+    .evidence-item { border:1px solid var(--line); background:rgba(255,255,255,.045); border-radius:16px; padding:12px; display:grid; grid-template-columns:auto 1fr auto; gap:10px; align-items:start; }
+    .evidence-id { color:var(--cyan); font-family:var(--mono); font-weight:950; }
+    .evidence-item p { margin:0; color:#c6d7ea; line-height:1.55; }
+    .grade { color:#06111f; background:var(--emerald); border-radius:999px; padding:4px 8px; font-weight:950; font-size:12px; }
+    .prompt-box { background:#040b14; border:1px solid rgba(45,212,255,.18); border-radius:18px; overflow:hidden; }
+    .prompt-head { padding:12px 14px; display:flex; justify-content:space-between; gap:10px; align-items:center; border-bottom:1px solid rgba(148,163,184,.14); color:var(--muted); }
+    pre { margin:0; padding:16px; color:#e0f2fe; font-family:var(--mono); font-size:12px; line-height:1.72; white-space:pre-wrap; overflow:auto; max-height:330px; }
+    .copy { border:0; color:#06111f; background:var(--cyan); border-radius:999px; padding:8px 11px; font-weight:950; }
 
-    .flow-layout { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(350px, 0.72fr); gap: 18px; align-items: start; }
-    .flow-img-card { padding: 16px; background: rgba(255,255,255,0.86); }
-    .flow-img { width: 100%; border-radius: 20px; border: 1px solid var(--line); box-shadow: var(--shadow-soft); }
-    .step-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
-    .step-btn {
-      text-align: left;
-      border: 1px solid rgba(37,99,235,0.14);
-      background: rgba(255,255,255,0.78);
-      border-radius: 16px;
-      padding: 12px;
-      min-height: 72px;
-      transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease;
-    }
-    .step-btn:hover { transform: translateY(-2px); border-color: rgba(37,99,235,0.36); }
-    .step-btn.active { color: #fff; background: linear-gradient(135deg, var(--blue), var(--cyan)); border-color: transparent; box-shadow: var(--glow-blue); }
-    .step-btn strong { display: block; font-family: var(--mono); font-size: 13px; margin-bottom: 4px; }
-    .step-btn span { display: block; font-size: 13px; line-height: 1.4; }
-    .detail-card { position: sticky; top: 94px; padding: 22px; }
-    .detail-card h3 { margin-top: 0; font-size: 24px; }
-    .detail-meta { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 16px; }
-    .detail-card ul { margin: 14px 0 0; padding-left: 18px; color: var(--ink-2); line-height: 1.75; }
-    .owner-grid { display: grid; gap: 10px; margin-top: 16px; }
-    .owner-row { display: flex; justify-content: space-between; gap: 12px; padding: 10px 12px; border: 1px solid var(--line); background: rgba(255,255,255,0.58); border-radius: 14px; font-size: 13px; }
-    .owner-row strong { color: var(--ink); }
-    .owner-row span { color: var(--muted); text-align: right; }
+    .tasklab { display:grid; grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr); gap:18px; }
+    .lab-card { padding:18px; }
+    textarea, select { width:100%; border:1px solid var(--line); background:rgba(7,17,31,.74); color:var(--text); border-radius:16px; padding:12px; outline:none; }
+    textarea { min-height:116px; resize:vertical; line-height:1.6; }
+    label { display:block; color:#dbeafe; font-weight:850; margin-bottom:8px; }
+    .lab-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px; }
+    .packet { background:#040b14; border:1px solid rgba(45,212,255,.18); border-radius:18px; padding:16px; color:#e0f2fe; font-family:var(--mono); line-height:1.72; min-height:286px; white-space:pre-wrap; }
 
-    .gate-board { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(360px, 1fr); gap: 18px; }
-    .gate-list { padding: 8px; display: grid; gap: 10px; }
-    .gate-item {
-      display: grid;
-      grid-template-columns: 28px 1fr auto;
-      gap: 10px;
-      align-items: start;
-      border: 1px solid var(--line);
-      background: rgba(255,255,255,0.72);
-      border-radius: 18px;
-      padding: 13px;
-    }
-    .gate-item input { width: 20px; height: 20px; margin-top: 2px; accent-color: var(--emerald); }
-    .gate-item strong { display: block; margin-bottom: 3px; color: var(--ink); }
-    .gate-item span { color: var(--muted); font-size: 13px; line-height: 1.55; }
-    .state-machine { padding: 24px; display: grid; gap: 18px; }
-    .state-ring {
-      min-height: 230px;
-      display: grid;
-      place-items: center;
-      border-radius: 28px;
-      background:
-        radial-gradient(circle at center, rgba(37,99,235,0.16), transparent 62%),
-        linear-gradient(135deg, rgba(255,255,255,0.84), rgba(255,255,255,0.5));
-      border: 1px solid rgba(37,99,235,0.14);
-    }
-    .state-ring-inner { width: min(250px, 78vw); height: min(250px, 78vw); border-radius: 50%; display: grid; place-items: center; text-align: center; color: #fff; padding: 28px; background: conic-gradient(var(--emerald) var(--progress, 0deg), rgba(37,99,235,0.18) 0); box-shadow: var(--glow-blue); position: relative; }
-    .state-ring-inner::before { content: ""; position: absolute; inset: 16px; border-radius: 50%; background: linear-gradient(135deg, var(--navy), #17345f); }
-    .state-ring-inner > div { position: relative; z-index: 1; }
-    .state-ring strong { display: block; font-size: 34px; letter-spacing: -0.05em; }
-    .state-ring span { display: block; color: #b8c9df; line-height: 1.5; margin-top: 8px; }
-    .state-steps { display: flex; flex-wrap: wrap; gap: 9px; justify-content: center; }
-    .state-steps span { padding: 8px 10px; border-radius: 999px; border: 1px solid var(--line); background: rgba(255,255,255,0.76); color: var(--muted); font-weight: 800; font-size: 12px; }
-    .state-steps span.active { color: #fff; background: linear-gradient(135deg, var(--blue), var(--cyan)); border-color: transparent; }
+    .flow-img-card { padding:16px; }
+    .flow-img { border-radius:22px; border:1px solid var(--line); box-shadow:var(--shadow-dark); width:100%; background:#fff; }
+    .repo-strip { margin-top:28px; padding:24px; display:grid; grid-template-columns:1fr auto; gap:18px; align-items:center; background:linear-gradient(135deg, rgba(45,212,255,.11), rgba(139,92,246,.12)); border:1px solid rgba(45,212,255,.22); border-radius:var(--radius-xl); }
+    .repo-strip h2 { margin:0; }
+    .repo-strip p { color:var(--muted); line-height:1.7; margin:8px 0 0; }
+    footer { padding:34px 0 54px; color:var(--muted); }
+    .footer-line { border-top:1px solid var(--line); padding-top:18px; display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; }
 
-    .ledger-tools { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
-    .filter-btn {
-      border: 1px solid rgba(37,99,235,0.15);
-      border-radius: 999px;
-      padding: 9px 12px;
-      background: rgba(255,255,255,0.72);
-      color: var(--muted);
-      font-weight: 850;
-      font-size: 13px;
-    }
-    .filter-btn.active { color: #fff; background: linear-gradient(135deg, var(--blue), var(--cyan)); border-color: transparent; }
-    .ledger { overflow: hidden; }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 15px 16px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
-    th { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; background: rgba(37,99,235,0.05); }
-    td { color: var(--ink-2); line-height: 1.55; }
-    td:first-child { font-family: var(--mono); color: var(--blue); font-weight: 900; white-space: nowrap; }
-    tr:last-child td { border-bottom: 0; }
-    .grade { display: inline-flex; align-items: center; justify-content: center; min-width: 34px; padding: 4px 8px; border-radius: 999px; font-weight: 900; font-size: 12px; color: #fff; background: var(--blue); }
-    .grade.a { background: var(--emerald); }
-    .grade.b { background: var(--blue); }
-    .grade.c { background: var(--amber); }
-    .grade.d { background: var(--red); }
-
-    .case-shell { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 18px; }
-    .case-tabs { padding: 10px; display: grid; gap: 10px; align-content: start; }
-    .case-tab {
-      text-align: left;
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      padding: 13px;
-      background: rgba(255,255,255,0.7);
-      color: var(--ink-2);
-      font-weight: 850;
-    }
-    .case-tab span { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; font-weight: 650; }
-    .case-tab.active { color: #fff; border-color: transparent; background: linear-gradient(135deg, var(--violet), var(--blue)); box-shadow: var(--glow-blue); }
-    .case-tab.active span { color: rgba(255,255,255,0.78); }
-    .case-body { padding: 24px; }
-    .case-body h3 { margin: 0 0 10px; font-size: 28px; }
-    .case-metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 18px 0; }
-    .metric { border: 1px solid var(--line); background: rgba(255,255,255,0.68); border-radius: 16px; padding: 13px; }
-    .metric strong { display: block; color: var(--navy); font-size: 18px; letter-spacing: -0.03em; }
-    .metric span { color: var(--muted); font-size: 12px; }
-    .timeline { margin: 16px 0 0; padding: 0; list-style: none; display: grid; gap: 11px; }
-    .timeline li { display: grid; grid-template-columns: 90px 1fr; gap: 12px; color: var(--ink-2); line-height: 1.6; }
-    .timeline b { color: var(--blue); font-family: var(--mono); }
-
-    .prompt-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
-    .prompt-card { overflow: hidden; display: grid; grid-template-rows: auto 1fr auto; min-height: 430px; }
-    .prompt-card header { padding: 18px; border-bottom: 1px solid var(--line); background: linear-gradient(90deg, rgba(37,99,235,0.07), rgba(124,58,237,0.06)); }
-    .prompt-card h3 { margin: 0; }
-    .prompt-card pre { margin: 0; overflow: auto; padding: 18px; background: #07111f; color: #e1efff; font-family: var(--mono); font-size: 12px; line-height: 1.72; white-space: pre-wrap; }
-    .prompt-card footer { padding: 14px 16px; display: flex; justify-content: space-between; gap: 10px; align-items: center; border-top: 1px solid var(--line); background: rgba(255,255,255,0.74); }
-    .copy-btn { border: 0; color: #fff; background: linear-gradient(135deg, var(--blue), var(--cyan)); border-radius: 999px; padding: 10px 13px; font-weight: 900; }
-
-    .repo-strip {
-      margin: 56px 0 22px;
-      padding: 26px;
-      border-radius: var(--radius-xl);
-      color: #fff;
-      background:
-        radial-gradient(circle at 18% 22%, rgba(6,182,212,0.28), transparent 22rem),
-        radial-gradient(circle at 84% 18%, rgba(124,58,237,0.24), transparent 22rem),
-        linear-gradient(135deg, var(--navy), #142a4d 58%, #10233d);
-      box-shadow: 0 28px 90px rgba(8, 17, 31, 0.28);
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: 20px;
-      align-items: center;
-      overflow: hidden;
-      position: relative;
-    }
-    .repo-strip h2 { color: #fff; margin: 0; font-size: clamp(28px, 4vw, 44px); }
-    .repo-strip p { color: #bad0e9; margin: 10px 0 0; line-height: 1.7; max-width: 720px; }
-    .repo-actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end; }
-    .repo-actions .btn { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.16); color: #fff; }
-
-    footer.page-footer { padding: 26px 0 46px; color: var(--muted); }
-    .footer-grid { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; border-top: 1px solid var(--line); padding-top: 20px; }
-    .privacy-note { font-size: 13px; line-height: 1.6; max-width: 720px; }
-
-    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
-    :focus-visible { outline: 3px solid rgba(37,99,235,0.45); outline-offset: 3px; }
-
-    @media (max-width: 980px) {
-      .hero-grid, .lab-wrap, .flow-layout, .gate-board, .repo-strip { grid-template-columns: 1fr; }
-      .detail-card { position: static; }
-      .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .prompt-grid, .grid-3 { grid-template-columns: 1fr; }
-      .case-shell { grid-template-columns: 1fr; }
-      .case-tabs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-      .repo-actions { justify-content: flex-start; }
+    .pulse { animation:pulse 1.4s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{ box-shadow:0 0 0 0 rgba(45,212,255,.34), var(--shadow-cyan);} 50%{ box-shadow:0 0 0 10px rgba(45,212,255,0), var(--shadow-cyan);} }
+    @media (max-width: 1020px) {
+      .hero-grid, .control-layout, .linked-grid, .tasklab, .repo-strip { grid-template-columns:1fr; }
+      .cockpit { position:static; }
+      .role-strip { grid-template-columns:1fr; }
+      .node-track { grid-template-columns: repeat(2, minmax(0,1fr)); }
     }
     @media (max-width: 720px) {
-      .shell { width: min(100% - 24px, 1180px); }
-      .nav { min-height: 66px; }
-      .navlinks { display: none; }
-      .github-cta { padding: 9px 12px; }
-      .hero { padding-top: 42px; }
-      .quick-proof, .grid-4, .grid-2, .form-row, .checks, .step-grid, .case-metrics { grid-template-columns: 1fr; }
-      .output-top, .output-actions, .section-head { align-items: start; flex-direction: column; }
-      .case-tabs { grid-template-columns: 1fr; }
-      table { min-width: 760px; }
-      .ledger { overflow-x: auto; }
-      .timeline li { grid-template-columns: 1fr; }
+      .shell { width: min(100% - 24px, 1220px); }
+      .navlinks { display:none; }
+      .hero { padding-top:42px; }
+      .node-track, .meta-grid, .state-chain, .lab-row { grid-template-columns:1fr; }
+      .hero-actions, .toolbar-buttons { flex-direction:column; align-items:stretch; }
+      .btn, .repo-btn { justify-content:center; }
     }
     @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
+      *, *::before, *::after { animation:none !important; transition:none !important; scroll-behavior:auto !important; }
     }
   </style>
 </head>
 <body>
-  <div class="noise" aria-hidden="true"></div>
   <header class="topbar">
     <div class="shell nav">
-      <a class="brand" href="#top" aria-label="ResearchLoop V4 home">
-        <span class="mark" aria-hidden="true"></span>
-        <span><strong>ResearchLoop V4</strong><span>Multi-Agent Workflow Governance</span></span>
-      </a>
-      <nav class="navlinks" aria-label="Primary navigation">
-        <a href="#lab">Task Lab</a>
-        <a href="#flow">Flow</a>
-        <a href="#gates">Gates</a>
-        <a href="#evidence">Evidence</a>
-        <a href="#cases">Cases</a>
-        <a href="#prompts">Prompts</a>
-      </nav>
-      <a class="github-cta" href="https://github.com/124-creator/ResearchLoop" target="_blank" rel="noreferrer">GitHub Repo</a>
+      <a class="brand" href="#top" aria-label="ResearchLoop V4.1 首页"><span class="mark" aria-hidden="true"></span><span><strong>ResearchLoop V4.1</strong><span>中文双循环 Agent 工作流控制台</span></span></a>
+      <nav class="navlinks" aria-label="主导航"><a href="#control">双循环</a><a href="#lab">任务包</a><a href="#evidence">证据链</a><a href="#prompts">提示词</a><a href="#flowchart">完整图</a></nav>
+      <a class="repo-btn" href="https://github.com/124-creator/ResearchLoop" target="_blank" rel="noreferrer">GitHub</a>
     </div>
   </header>
 
@@ -579,433 +274,167 @@
     <section class="hero">
       <div class="shell hero-grid">
         <div>
-          <div class="eyebrow"><i aria-hidden="true"></i> Static, privacy-safe, recruiter-ready demo</div>
-          <h1>Stop agents from doing <span class="gradient-text">the wrong thing faster.</span></h1>
-          <p class="hero-lead">ResearchLoop V4 turns ambiguous AI-agent work into a governed dual-loop process: define the problem, map risk, collect evidence, review independently, execute in an isolated worktree, and verify with traceable artifacts.</p>
-          <div class="hero-actions">
-            <a class="btn primary" href="#lab">Run the Task Lab</a>
-            <a class="btn" href="#flow">Explore the Loop</a>
-            <a class="btn ghost" href="../docs/v4/000-dual-loop-controller-v4.md">Read V4 protocol</a>
-          </div>
-          <div class="quick-proof" aria-label="Proof points">
-            <div class="proof-card"><strong>2 Loops</strong><span>Plan correctly, then deliver correctly.</span></div>
-            <div class="proof-card"><strong>15 Gates</strong><span>From 010 definition to G3 acceptance.</span></div>
-            <div class="proof-card"><strong>0 API calls</strong><span>This public demo runs fully in browser.</span></div>
-            <div class="proof-card"><strong>Evidence IDs</strong><span>Every claim is tied to an artifact trail.</span></div>
+          <div class="eyebrow"><i></i> GPT-Pro × Claude × Codex</div>
+          <h1>先把方案审对，<br><span class="gradient-text">再把执行做对。</span></h1>
+          <p class="lead">ResearchLoop V4.1 把 AI Agent 协作拆成两个可循环闭环：Loop 1 由 GPT-Pro 生成/修复方案，Claude 独立检验并给出修改意见；Loop 2 由 Claude 给出 Plan/Review，Codex 执行、测试并提交复盘，再交给 Claude 终检。</p>
+          <div class="hero-actions"><a class="btn primary" href="#control">启动双 Loop 演示</a><button class="btn violet" type="button" id="heroPlay">自动演示循环</button><a class="btn" href="#prompts">复制协作提示词</a></div>
+          <div class="role-strip" aria-label="三类智能体角色">
+            <div class="role-card"><strong>GPT-Pro</strong><span>负责 Loop 1 的方案生成与方案修复，把 Claude 的审查意见转化为更稳的路线。</span></div>
+            <div class="role-card claude"><strong>Claude</strong><span>负责独立检验、提出 BLOCKER/RISK/PASS，也负责 Loop 2 的 Plan 与终检。</span></div>
+            <div class="role-card codex"><strong>Codex</strong><span>负责按 Plan 执行、测试、记录 diff 和复盘报告，把交付证据落到文件与命令中。</span></div>
           </div>
         </div>
-        <aside class="orbit-card" aria-label="ResearchLoop proof console">
-          <div class="console">
-            <div class="console-head">
-              <div class="dots" aria-hidden="true"><i></i><i></i><i></i></div>
-              <span>researchloop-v4/runbook</span>
-            </div>
-            <div class="console-body">
-              <div class="run-card">
-                <header><h3>Current route</h3><span class="pill blue">Standard Track</span></header>
-                <p>Multi-file change with risk. Enter Loop 1, freeze assumptions, produce Test Oracle, then hand off to Loop 2 with a worktree check.</p>
-                <div class="mini-flow" aria-label="State chain"><span>draft</span><span>approved</span><span>implemented</span><span>verified</span></div>
-              </div>
-              <div class="run-card">
-                <header><h3>Gate status</h3><span class="pill green">4 / 6 ready</span></header>
-                <p>G1 locks scope. G2 authorizes execution. G3 accepts only when evidence, tests, and review converge.</p>
-              </div>
-              <div class="run-card">
-                <header><h3>Artifacts</h3><span class="pill amber">010 + 012 + 040</span></header>
-                <p>Problem definition, risk map, candidate route, independent review, execution plan, worktree check, and final retrospective.</p>
-              </div>
-            </div>
+        <aside class="hero-panel">
+          <div class="loop-summary">
+            <article class="summary-card loop1"><h3>Loop 1：方案校验循环</h3><p>GPT-Pro 产出方案 → Claude 独立审查 → GPT-Pro 根据意见修复 → Claude 再审，直到方案能够进入执行层。</p><div class="mini-cycle"><span>GPT-Pro 方案/修复</span><b>⇄</b><span>Claude 独立检验</span></div></article>
+            <article class="summary-card loop2"><h3>Loop 2：执行验证循环</h3><p>Claude 给出执行 Plan → Codex 执行/测试/复盘 → Claude 检查 diff、测试结果与复盘，直到成为 G3 候选。</p><div class="mini-cycle"><span>Claude Plan/Review</span><b>⇄</b><span>Codex 执行/复盘</span></div></article>
           </div>
         </aside>
       </div>
     </section>
 
-    <section id="overview">
+    <section id="control">
       <div class="shell">
-        <div class="section-head">
-          <div><div class="kicker">Why this exists</div><h2>A workflow for AI-agent work that has to be correct.</h2></div>
-          <p class="section-copy">Most agent failures are not model failures. They are routing failures: vague goals, hidden risk, missing evidence, no reviewer, and no stop condition. ResearchLoop V4 makes those failure modes visible before code changes.</p>
+        <div class="section-head"><div><div class="kicker">Dual-loop control room</div><h2>点击节点，观察两个循环如何互相推进。</h2></div><p class="section-copy">这不是真实调用 LLM 的后台，而是一个公开安全的静态模拟器：它展示角色、产物、审查信号、证据链和提示词如何随循环状态变化。</p></div>
+        <div class="control-layout">
+          <div class="panel control-room">
+            <div class="control-toolbar"><span class="round-badge" id="roundBadge">Round 1 · draft</span><div class="toolbar-buttons"><button class="btn primary small" type="button" id="playBtn">自动演示循环</button><button class="btn small" type="button" id="nextBtn">下一步</button><button class="btn small" type="button" id="resetBtn">重置</button></div></div>
+            <div class="loop-grid">
+              <article class="loop-card loop1" id="loop1Card"><div class="loop-title"><div><h3>Loop 1 · 方案校验循环</h3><p>GPT-Pro 生成/修复方案，Claude 独立检验并给出修改意见。</p></div><span class="loop-badge">GPT-Pro ⇄ Claude</span></div><div class="node-track" id="loop1Nodes"></div></article>
+              <div class="bridge-strip"><span>G1/G2 通过后，方案交给执行验证循环</span></div>
+              <article class="loop-card loop2" id="loop2Card"><div class="loop-title"><div><h3>Loop 2 · 执行验证循环</h3><p>Claude 给 Plan/Review，Codex 执行、测试、复盘，再回到 Claude 终检。</p></div><span class="loop-badge">Claude ⇄ Codex</span></div><div class="node-track" id="loop2Nodes"></div></article>
+            </div>
+          </div>
+          <aside class="panel cockpit" aria-live="polite">
+            <div class="active-agent"><span class="agent-chip" id="agentChip">GPT-Pro</span><span class="signal draft" id="signalChip">DRAFT</span></div>
+            <h3 id="activeTitle">生成 010 方案草案</h3>
+            <p id="activeDesc">把模糊目标转换成可审查的问题定义，并明确非目标、隐私边界和验收标准。</p>
+            <div class="meta-grid"><div class="meta"><b>当前动作</b><span id="activeAction">方案生成</span></div><div class="meta"><b>当前产物</b><span id="activeArtifact">010 问题定义</span></div><div class="meta"><b>审查关注</b><span id="activeReview">目标是否稳定</span></div><div class="meta"><b>下一步</b><span id="activeNext">Claude 独立检验</span></div></div>
+            <div class="state-chain" id="stateChain"><span>draft</span><span>reviewed</span><span>implemented</span><span>G3 candidate</span></div>
+          </aside>
         </div>
-        <div class="grid-4">
-          <article class="card feature"><span class="icon">1</span><h3>Track first</h3><p>Light, standard, and heavy routes keep easy tasks fast while forcing risky work into full evidence and review.</p></article>
-          <article class="card feature"><span class="icon">2</span><h3>Evidence-led</h3><p>Assumptions, tests, diffs, blockers, and reviewer notes become explicit artifacts instead of chat history.</p></article>
-          <article class="card feature"><span class="icon">3</span><h3>Human gates</h3><p>G1, G2, and G3 separate problem approval, execution authorization, and final acceptance.</p></article>
-          <article class="card feature"><span class="icon">4</span><h3>No silent drift</h3><p>Plans, worktree checks, and retrospectives keep agents from changing scope when they encounter difficulty.</p></article>
-        </div>
-        <div class="grid-2 compare" style="margin-top:18px">
-          <article class="card compare-card bad"><span class="chip amber">普通 Agent Prompt</span><h3>Fast but fragile</h3><ul><li>Starts implementing before the problem is stable.</li><li>Mixes assumptions, code, and review inside one conversation.</li><li>Has no independent reviewer or stop condition.</li><li>Hard to reproduce in an interview or team setting.</li></ul></article>
-          <article class="card compare-card good"><span class="chip green">ResearchLoop V4</span><h3>Slower at the right moment, faster overall</h3><ul><li>Routes by uncertainty and risk before touching files.</li><li>Creates 010-040 artifacts and G1/G2/G3 decisions.</li><li>Uses execution isolation, review, and evidence IDs.</li><li>Turns a resume project into a reusable engineering method.</li></ul></article>
+        <div class="linked-grid" id="evidence">
+          <article class="panel linked-panel"><h3>联动证据链</h3><div class="evidence-list" id="evidenceList"></div></article>
+          <article class="panel linked-panel" id="prompts"><h3>联动提示词</h3><div class="prompt-box"><div class="prompt-head"><span id="promptLabel">当前节点提示词</span><button class="copy" type="button" id="copyPrompt">复制</button></div><pre id="promptText"></pre></div></article>
         </div>
       </div>
     </section>
 
     <section id="lab">
       <div class="shell">
-        <div class="section-head">
-          <div><div class="kicker">Task Lab</div><h2>Turn a messy request into a safe first packet.</h2></div>
-          <p class="section-copy">This browser-only lab does not call an LLM. It shows how ResearchLoop V4 decides a route and prepares the first 010 handoff packet.</p>
-        </div>
-        <div class="lab-wrap">
-          <form class="card control-panel" id="taskForm">
-            <div class="field"><label for="taskInput">Messy task</label><textarea id="taskInput">Build a demo for my multi-agent workflow, make it beautiful, update GitHub Pages, and make sure it does not expose private files.</textarea></div>
-            <div class="form-row">
-              <div class="field"><label for="uncertainty">Uncertainty</label><select id="uncertainty"><option value="low">Low: one sentence diff</option><option value="medium" selected>Medium: needs route comparison</option><option value="high">High: unclear risk or research</option></select></div>
-              <div class="field"><label for="scope">File scope</label><select id="scope"><option value="one">One file</option><option value="few" selected>Several files</option><option value="many">Many files or integration</option></select></div>
-            </div>
-            <fieldset class="checkset"><legend>Risk flags</legend><div class="checks">
-              <label class="check"><input type="checkbox" value="external" checked> External publish</label>
-              <label class="check"><input type="checkbox" value="privacy" checked> Privacy boundary</label>
-              <label class="check"><input type="checkbox" value="tests" checked> Needs verification</label>
-              <label class="check"><input type="checkbox" value="research"> Needs research</label>
-              <label class="check"><input type="checkbox" value="data"> Data or credentials</label>
-              <label class="check"><input type="checkbox" value="irreversible"> Irreversible change</label>
-            </div></fieldset>
-            <button type="button" class="btn primary" id="generateBtn">Generate 010 packet</button>
-          </form>
-          <article class="card output-panel" aria-live="polite">
-            <div class="output-top"><div><span class="track-badge standard" id="trackBadge">Standard Track</span><div class="artifact-list" id="artifactList" style="margin-top:10px"></div></div><span class="hint">Generated locally in your browser</span></div>
-            <pre class="packet" id="packetOutput"></pre>
-            <div class="output-actions"><span class="hint">Use this as the first reviewer handoff, not as final proof.</span><button type="button" class="btn dark" id="downloadPacket">Download .md</button></div>
-          </article>
-        </div>
+        <div class="section-head"><div><div class="kicker">010 Packet Lab</div><h2>把一句话任务变成 Loop 1 输入。</h2></div><p class="section-copy">生成结果只在浏览器本地展示，适合复制给 GPT-Pro 进入第一轮方案生成。</p></div>
+        <div class="tasklab"><article class="panel lab-card"><label for="taskInput">输入一个模糊任务</label><textarea id="taskInput">请优化 ResearchLoop Demo 页面，突出 GPT-Pro、Claude、Codex 的双循环协作，并同步到 GitHub Pages。</textarea><div class="lab-row"><div><label for="riskSelect">风险等级</label><select id="riskSelect"><option value="low">低：轻量修改</option><option value="medium" selected>中：多文件与展示风险</option><option value="high">高：外部发布或隐私边界</option></select></div><div><label for="scopeSelect">范围</label><select id="scopeSelect"><option value="one">单文件</option><option value="multi" selected>多文件</option><option value="release">公开发布</option></select></div></div><button class="btn primary" type="button" id="packetBtn" style="margin-top:14px">生成 010 输入包</button></article><article class="panel lab-card"><div class="packet" id="packetOutput"></div></article></div>
       </div>
     </section>
 
-    <section id="flow">
+    <section id="flowchart">
       <div class="shell">
-        <div class="section-head">
-          <div><div class="kicker">Flow Playback</div><h2>Loop 1 decides the right thing. Loop 2 gets it done.</h2></div>
-          <p class="section-copy">Click any step to see owner, gate, and artifact expectations. The image is the latest V4 flowchart used in the repository.</p>
-        </div>
-        <div class="flow-layout">
-          <div class="card flow-img-card">
-            <img class="flow-img" src="../assets/researchloop-v4-flowchart.png" alt="ResearchLoop V4 dual-loop workflow flowchart">
-            <div class="step-grid" id="stepGrid"></div>
-          </div>
-          <aside class="card detail-card" id="stepDetail"></aside>
-        </div>
+        <div class="section-head"><div><div class="kicker">Full V4 map</div><h2>完整流程图保留为协议地图。</h2></div><p class="section-copy">上方控制台展示核心双循环；这里保留完整 V4 流程图，方便面试或 README 中快速解释全局结构。</p></div>
+        <article class="panel flow-img-card"><img class="flow-img" src="../assets/researchloop-v4-flowchart.png" alt="ResearchLoop V4 完整双 Loop 流程图"></article>
+        <div class="repo-strip"><div><h2>公开作品集定位：不是 Prompt，而是 Agent 协作机制。</h2><p>页面展示了方案审查循环、执行验证循环、证据链、复盘与 G3 候选状态，适合作为 AI Agent 方向简历项目链接。</p></div><div class="hero-actions"><a class="btn primary" href="https://github.com/124-creator/ResearchLoop" target="_blank" rel="noreferrer">打开 GitHub</a><a class="btn" href="../docs/v4/000-dual-loop-controller-v4.md">阅读协议</a></div></div>
       </div>
     </section>
-
-    <section id="gates">
-      <div class="shell">
-        <div class="section-head">
-          <div><div class="kicker">Gate Simulator</div><h2>State changes only when evidence is ready.</h2></div>
-          <p class="section-copy">The public demo simulates readiness. In a real run, the checklist would be backed by files, tests, review comments, and human decisions.</p>
-        </div>
-        <div class="gate-board">
-          <div class="card gate-list" id="gateList"></div>
-          <article class="card state-machine">
-            <div class="state-ring"><div class="state-ring-inner" id="stateRing"><div><strong id="statePercent">0%</strong><span id="stateText">Waiting for G1 evidence.</span></div></div></div>
-            <div class="state-steps" id="stateSteps"><span>draft</span><span>approved</span><span>implemented</span><span>verified</span></div>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section id="evidence">
-      <div class="shell">
-        <div class="section-head">
-          <div><div class="kicker">Evidence Ledger</div><h2>Claims are useful only when they are traceable.</h2></div>
-          <p class="section-copy">ResearchLoop V4 makes every reviewer concern and execution claim reference an evidence ID. This ledger is a sample of how work can be audited after the run.</p>
-        </div>
-        <div class="ledger-tools" id="ledgerFilters"></div>
-        <div class="card ledger"><table aria-label="Evidence ledger"><thead><tr><th>ID</th><th>Stage</th><th>Claim</th><th>Evidence</th><th>Grade</th></tr></thead><tbody id="ledgerBody"></tbody></table></div>
-      </div>
-    </section>
-
-    <section id="cases">
-      <div class="shell">
-        <div class="section-head">
-          <div><div class="kicker">Case Study Replay</div><h2>One workflow, multiple high-risk work shapes.</h2></div>
-          <p class="section-copy">These examples show how the same gates apply to modeling, research automation, and product/demo delivery without exposing private datasets.</p>
-        </div>
-        <div class="case-shell">
-          <div class="card case-tabs" id="caseTabs"></div>
-          <article class="card case-body" id="caseBody"></article>
-        </div>
-      </div>
-    </section>
-
-    <section id="prompts">
-      <div class="shell">
-        <div class="section-head">
-          <div><div class="kicker">Prompt Kit</div><h2>Copy the contract, not only the vibe.</h2></div>
-          <p class="section-copy">A top-tier agent demo should leave the visitor with something reusable. These prompts are intentionally bounded and evidence-first.</p>
-        </div>
-        <div class="prompt-grid">
-          <article class="card prompt-card"><header><span class="chip blue">Starter</span><h3>010 Problem Definition</h3></header><pre id="promptStarter">You are running ResearchLoop V4.
-
-Task:
-{{paste user task}}
-
-Produce only 010 Problem Definition:
-- goal and non-goals
-- current uncertainty
-- affected files or systems
-- success criteria
-- privacy and external-write boundary
-- recommended track: light, standard, or heavy
-- stop condition before execution
-
-Do not implement yet.</pre><footer><span class="hint">Loop 1 entry</span><button class="copy-btn" data-copy="promptStarter">Copy</button></footer></article>
-          <article class="card prompt-card"><header><span class="chip violet">Reviewer</span><h3>Independent BLOCKER Review</h3></header><pre id="promptReviewer">Review the 010-040 packet under ResearchLoop V4.
-
-Return:
-- BLOCKER if scope, evidence, risk, or tests are insufficient
-- RISK if execution is possible but needs mitigation
-- PASS only when G2 can safely authorize work
-
-Every finding must include:
-- evidence ID
-- exact artifact or file reference
-- smallest required repair
-
-Do not rewrite the plan silently.</pre><footer><span class="hint">Loop 1 gate</span><button class="copy-btn" data-copy="promptReviewer">Copy</button></footer></article>
-          <article class="card prompt-card"><header><span class="chip green">Executor</span><h3>Loop 2 Execution Contract</h3></header><pre id="promptExecutor">You are the ResearchLoop V4 executor.
-
-Rules:
-- work only from the approved plan
-- modify only the deliverable manifest
-- check worktree before writing
-- keep diffs small and reversible
-- run the Test Oracle
-- report evidence, commands, and remaining risks
-- do not mark verified; only G3 can do that
-
-If evidence conflicts with the plan, stop and report RESEARCH CONFLICT.</pre><footer><span class="hint">Loop 2 contract</span><button class="copy-btn" data-copy="promptExecutor">Copy</button></footer></article>
-        </div>
-      </div>
-    </section>
-
-    <div class="shell">
-      <section class="repo-strip" aria-label="Repository call to action">
-        <div><h2>Use the workflow as a public proof-of-work project.</h2><p>Open the docs, inspect the templates, and run the static page locally. The demo is intentionally dependency-free so a recruiter or teammate can understand it without setup.</p></div>
-        <div class="repo-actions"><a class="btn" href="https://github.com/124-creator/ResearchLoop" target="_blank" rel="noreferrer">Open GitHub</a><a class="btn" href="../templates/v4-plan-template.md">Plan template</a><a class="btn" href="../docs/v4/README.md">Docs index</a></div>
-      </section>
-    </div>
   </main>
 
-  <footer class="page-footer">
-    <div class="shell footer-grid">
-      <div><strong>ResearchLoop V4</strong><div class="privacy-note">Static public demo. It does not upload text, call external APIs, or contain private datasets. Generated packets are local draft artifacts and must be reviewed before execution.</div></div>
-      <div class="privacy-note">Built for AI-agent workflow governance, evidence-led research work, and human-in-the-loop delivery.</div>
-    </div>
-  </footer>
+  <footer><div class="shell footer-line"><span>ResearchLoop V4.1 · 中文双循环 Agent 工作流控制台</span><span>静态公开 Demo：不上传文本，不调用外部 API，不包含私有数据。</span></div></footer>
 
   <script>
     const steps = [
-      {id:"010", loop:"Loop 1", title:"Problem definition", owner:"GPT-Pro + human", gate:"G1 first pass", artifact:"010 problem packet", desc:"Freeze goal, non-goals, scope, privacy boundary, and stop condition before any execution.", items:["Define desired outcome", "Separate assumptions from facts", "List affected files/systems", "Set acceptance criteria"]},
-      {id:"012", loop:"Loop 1", title:"Risk map", owner:"GPT-Pro / human", gate:"Risk routing", artifact:"012 risk map", desc:"Turn uncertainty into explicit risk classes and escalation conditions.", items:["Unknowns", "External writes", "Data sensitivity", "Rollback path"]},
-      {id:"015", loop:"Loop 1", title:"Evidence baseline", owner:"GPT-Pro", gate:"Evidence grade", artifact:"015 evidence list", desc:"Collect current state, prior failures, references, and confidence level.", items:["Evidence A/B/C/D", "Local files", "Official docs when needed", "Open questions"]},
-      {id:"020", loop:"Loop 1", title:"Candidate routes", owner:"GPT-Pro", gate:"Route comparison", artifact:"020 route map", desc:"Compare R1/R2/R3 instead of jumping into a single plan.", items:["Fast path", "Safe path", "Research path", "Tradeoffs"]},
-      {id:"030", loop:"Loop 1", title:"Independent review", owner:"Reviewer", gate:"BLOCKER / RISK / PASS", artifact:"030 review", desc:"A separate reviewer challenges scope, evidence, tests, and risk before work is authorized.", items:["Blocker list", "Risk mitigations", "Minimum viable fix", "G2 readiness"]},
-      {id:"035", loop:"Loop 1", title:"Route decision", owner:"Strong model + human", gate:"G1 second pass", artifact:"035 approved route", desc:"Select the route, lock the deliverable manifest, and preserve rejected options for traceability.", items:["Chosen route", "Rejected routes", "Plan scope", "Spike design if needed"]},
-      {id:"040", loop:"Loop 1", title:"Verification stack", owner:"Strong model / reviewer", gate:"Test Oracle", artifact:"040 test oracle", desc:"Define the smallest tests that can prove the work is done and safe.", items:["Acceptance checks", "No-go checks", "Manual review", "Evidence IDs"]},
-      {id:"08", loop:"Loop 2", title:"Repo exploration", owner:"Claude Code / Opus", gate:"Context loaded", artifact:"repo map", desc:"Explore the repository and confirm current implementation before editing.", items:["File map", "Existing patterns", "Execution constraints", "Relevant docs"]},
-      {id:"09", loop:"Loop 2", title:"Instruction load check", owner:"Claude Code", gate:"Contract loaded", artifact:"instruction receipt", desc:"Confirm AGENTS, plan, hooks, and boundaries are understood.", items:["Plan ID", "Allowed files", "Forbidden changes", "Hook status"]},
-      {id:"10", loop:"Loop 2", title:"Plan audit", owner:"Claude Code", gate:"Executable plan", artifact:"draft plan + audit", desc:"Validate that the approved plan can be executed and tested.", items:["Test path", "Rollback", "Blocked assumptions", "Review notes"]},
-      {id:"11", loop:"Loop 2", title:"G2 execution gate", owner:"Human", gate:"Approved execution", artifact:"G2 decision", desc:"Human authorization separates planning from modifying files or external surfaces.", items:["Approved plan", "External writes", "Scope lock", "Safety notes"]},
-      {id:"12", loop:"Loop 2", title:"WORKTREE CHECK", owner:"Claude Code / Codex", gate:"Isolation", artifact:"worktree status", desc:"Check branch, diff, environment, and service boundaries before implementation.", items:["git status", "branch", "env boundary", "ports/services"]},
-      {id:"13", loop:"Loop 2", title:"Implement and test", owner:"Codex", gate:"Implemented", artifact:"diff + test output", desc:"Make bounded changes, run the Test Oracle, and keep evidence attached to each claim.", items:["Small diffs", "Targeted tests", "Screenshots", "Sensitive scan"]},
-      {id:"14", loop:"Loop 2", title:"Final review", owner:"Claude Code / Opus", gate:"Review result", artifact:"review report", desc:"Review the implementation against the plan and Test Oracle before G3.", items:["PASS/RISK/BLOCKER", "Trace IDs", "Remaining risk", "Repair actions"]},
-      {id:"15", loop:"Loop 2", title:"G3 acceptance", owner:"Human", gate:"Verified", artifact:"verified result", desc:"Only G3 can mark verified. Implementation alone is not verification.", items:["Review evidence", "Deployment check", "User acceptance", "Retrospective"]}
+      {id:'L1-010', loop:'loop1', code:'010', agent:'GPT-Pro', signal:'DRAFT', signalClass:'draft', title:'GPT-Pro 生成 010 方案草案', desc:'把模糊任务转换成可审查的问题定义：目标、非目标、边界、验收标准和停止条件。', action:'方案生成', artifact:'010 问题定义', review:'目标是否稳定，边界是否清晰', next:'Claude 独立检验', state:0, evidence:['L1-GPT-010','BOUNDARY-010'], prompt:'你是 GPT-Pro，进入 ResearchLoop V4.1 Loop 1。\n\n请只生成 010 问题定义：\n- 目标 / 非目标\n- 用户真正想要的结果\n- 公开边界与不可触碰内容\n- 成功标准\n- 停止条件\n\n不要执行，不要修改文件。'},
+      {id:'L1-030', loop:'loop1', code:'030', agent:'Claude', signal:'BLOCKER', signalClass:'blocker', title:'Claude 独立检验并提出修改意见', desc:'Claude 不执行方案，而是审查 GPT-Pro 的 010/012/020：找 BLOCKER、风险、证据缺口和最小修复建议。', action:'独立检验', artifact:'030 审查意见', review:'是否存在 BLOCKER 或证据缺口', next:'GPT-Pro 根据意见修复', state:1, evidence:['CL-R030','BLOCKER-MAP'], prompt:'你是 Claude 独立审查官。\n\n审查 GPT-Pro 的方案包，输出：\n- BLOCKER：必须修复的问题\n- RISK：可以执行但需缓解的问题\n- PASS：可以进入执行层\n\n每条意见必须包含证据 ID、原因和最小修复建议。'},
+      {id:'L1-035', loop:'loop1', code:'035', agent:'GPT-Pro', signal:'RISK', signalClass:'risk', title:'GPT-Pro 根据 Claude 意见修复路线', desc:'GPT-Pro 吸收 Claude 的 BLOCKER/RISK，修复路线、补充 Test Oracle，并保留 rejected route 作为证据。', action:'方案修复', artifact:'035 修复后路线', review:'修改意见是否逐条闭环', next:'Claude 再次检验', state:1, evidence:['GPT-FIX-035','ORACLE-040'], prompt:'你是 GPT-Pro。\n\n根据 Claude 的 BLOCKER/RISK 清单修复方案：\n- 逐条回应修改意见\n- 补充缺失证据\n- 调整执行路线\n- 更新 Test Oracle\n- 标记哪些问题仍需人工 G2 决策\n\n不要跳过任何审查意见。'},
+      {id:'L1-040', loop:'loop1', code:'040', agent:'Claude', signal:'PASS', signalClass:'pass', title:'Claude 复检通过，形成执行输入', desc:'Claude 确认方案、风险、证据和 Test Oracle 已足够，才允许进入 Loop 2 的执行验证循环。', action:'复检放行', artifact:'040 Test Oracle + G2 候选', review:'是否可以交给执行层', next:'Claude 生成执行 Plan', state:1, evidence:['CL-PASS-040','G2-CANDIDATE'], prompt:'你是 Claude 复检者。\n\n检查修复后的方案是否满足：\n- 目标稳定\n- 风险可控\n- Test Oracle 可执行\n- 交付清单明确\n\n若满足，输出 PASS + 执行层输入；否则继续给出 BLOCKER。'},
+      {id:'L2-PLAN', loop:'loop2', code:'PLAN', agent:'Claude', signal:'DRAFT', signalClass:'draft', title:'Claude 给出可执行 Plan', desc:'Claude 把通过的方案转化为 Codex 可执行计划：允许修改的文件、步骤、测试、回滚方式和 G2 边界。', action:'执行计划', artifact:'Claude Plan', review:'计划是否可执行且边界清楚', next:'Codex 执行前检查', state:2, evidence:['CL-PLAN-L2','MANIFEST-L2'], prompt:'你是 Claude 执行计划官。\n\n基于已通过的 Loop 1 方案，写出 Codex 可执行 Plan：\n- 允许修改的文件清单\n- 步骤顺序\n- Test Oracle\n- 回滚方式\n- 不允许改变的边界\n\n不要直接实现。'},
+      {id:'L2-EXEC', loop:'loop2', code:'EXEC', agent:'Codex', signal:'RISK', signalClass:'risk', title:'Codex 按 Plan 执行、测试、记录证据', desc:'Codex 不重新定义目标，只按照 Claude Plan 修改文件、运行检查、记录 diff、截图和命令输出。', action:'执行与测试', artifact:'diff + test output', review:'是否严格遵守 Plan', next:'Codex 写复盘报告', state:2, evidence:['CX-DIFF-013','CX-TEST-013'], prompt:'你是 Codex 执行者。\n\n规则：\n- 只按 Claude Plan 执行\n- 只改交付清单中的文件\n- 修改前检查 worktree\n- 修改后运行 Test Oracle\n- 记录 diff、截图、命令输出\n\n若计划与现实冲突，停止并报告。'},
+      {id:'L2-RETRO', loop:'loop2', code:'RETRO', agent:'Codex', signal:'DRAFT', signalClass:'draft', title:'Codex 输出复盘报告', desc:'Codex 把完成内容、遇到的问题、测试结果、剩余风险写成复盘，方便 Claude 终检。', action:'复盘报告', artifact:'retrospective', review:'证据是否足够复核', next:'Claude 终检', state:2, evidence:['CX-RETRO-014','EVIDENCE-LINK'], prompt:'你是 Codex。\n\n写复盘报告：\n- 完成了什么\n- 修改了哪些文件\n- 遇到的问题与解决过程\n- Test Oracle 结果\n- 剩余风险\n- 证据 ID\n\n不要把 implemented 写成 verified。'},
+      {id:'L2-REVIEW', loop:'loop2', code:'REVIEW', agent:'Claude', signal:'PASS', signalClass:'pass', title:'Claude 检验 diff、测试与复盘', desc:'Claude 检查 Codex 的 diff、测试结果和复盘报告，若有问题则回到 Codex 修复；通过后进入 G3 候选。', action:'终检审查', artifact:'Claude final review', review:'是否满足 Test Oracle', next:'G3 候选 / 下一轮 010', state:3, evidence:['CL-FINAL-014','G3-CANDIDATE'], prompt:'你是 Claude 终检者。\n\n检查 Codex 的交付：\n- diff 是否符合 Plan\n- 测试是否真实通过\n- 复盘是否解释了问题\n- 是否存在未解决风险\n\n输出 PASS/RISK/BLOCKER。PASS 后只能称为 G3 candidate。'}
     ];
+    let active = 0;
+    let round = 1;
+    let timer = null;
+    const $ = (id) => document.getElementById(id);
 
-    const artifactsByTrack = {
-      light: ["010", "diff", "smoke test"],
-      standard: ["010", "012", "030", "040", "worktree", "retrospective"],
-      heavy: ["010", "012", "015", "020", "030", "035", "040", "Spike A/B/C", "G2", "G3"]
-    };
-
-    const gateItems = [
-      {id:"scope", title:"Scope frozen", text:"Goal, non-goals, affected files, and deliverables are explicit."},
-      {id:"risk", title:"Risk map exists", text:"Privacy, external writes, rollback, and uncertainty are classified."},
-      {id:"oracle", title:"Test Oracle ready", text:"The smallest proof checks are written before implementation."},
-      {id:"review", title:"Independent review passed", text:"BLOCKER and RISK findings are resolved or accepted."},
-      {id:"worktree", title:"WORKTREE CHECK clean", text:"Branch, diff, environment, and service boundaries are known."},
-      {id:"evidence", title:"Evidence IDs attached", text:"Claims can be traced to screenshots, commands, files, or review IDs."}
-    ];
-
-    const evidence = [
-      {id:"L1-E010", tag:"Loop 1", stage:"010", claim:"The task is clear enough to route.", evidence:"Goal, non-goals, acceptance criteria, privacy boundary.", grade:"A"},
-      {id:"L1-E012", tag:"Loop 1", stage:"012", claim:"External publish and privacy risk are visible.", evidence:"Risk map includes deploy, public repo, and no-private-data constraints.", grade:"A"},
-      {id:"L1-R030", tag:"B", stage:"030", claim:"Reviewer found no unresolved blocker.", evidence:"Independent review result with BLOCKER/RISK/PASS labels.", grade:"B"},
-      {id:"CC-W012", tag:"Claude Code", stage:"WORKTREE", claim:"Executor is isolated from unrelated work.", evidence:"Branch, status, allowed files, and rollback path recorded.", grade:"A"},
-      {id:"CX-T013", tag:"Codex", stage:"Test", claim:"Implementation satisfies page oracle.", evidence:"Browser load, image naturalWidth, old-term scan, sensitive scan.", grade:"A"},
-      {id:"CC-V014", tag:"Claude Code", stage:"Review", claim:"Final result matches approved plan.", evidence:"Review report references changed files and screenshots.", grade:"B"},
-      {id:"G3-H015", tag:"D", stage:"G3", claim:"Human has not accepted yet.", evidence:"Implementation can be complete before final acceptance.", grade:"D"}
-    ];
-
-    const cases = [
-      {id:"apmcm", title:"Mathematical Modeling Workflow", label:"APMCM", summary:"Use ResearchLoop to separate modeling claims, data cleaning, experiment evidence, and paper-writing decisions.", metrics:["Evidence-first", "Ablation aware", "Paper safe"], timeline:[["010", "Define question and scoring target"], ["012", "Mark data leakage and reproducibility risks"], ["040", "Lock validation metrics before tuning"], ["G3", "Accept only with report, code, and result trace"]]},
-      {id:"scholar", title:"Scholar-Agent Pipeline", label:"ScholarLoop", summary:"Turn literature search, prompt design, and review into a repeatable pipeline with citation and artifact boundaries.", metrics:["Citation audit", "Prompt versioning", "Review loop"], timeline:[["010", "State the research claim"], ["015", "Collect papers and confidence grades"], ["030", "Challenge unsupported claims"], ["14", "Final review before writing"]]},
-      {id:"demo", title:"Portfolio Demo Delivery", label:"ResearchLoop Demo", summary:"A safe route for public GitHub Pages work: no private paths, no secrets, no stale demo content, and visual proof.", metrics:["Static page", "Privacy-safe", "Deployable"], timeline:[["010", "Define public audience and boundaries"], ["012", "Scan for private information"], ["13", "Implement, screenshot, and test"], ["15", "Human acceptance after live verification"]]}
-    ];
-
-    function computeTrack() {
-      const uncertainty = document.getElementById("uncertainty").value;
-      const scope = document.getElementById("scope").value;
-      const checked = Array.from(document.querySelectorAll(".checks input:checked")).map(function(input){ return input.value; });
-      let score = 0;
-      if (uncertainty === "medium") score += 2;
-      if (uncertainty === "high") score += 4;
-      if (scope === "few") score += 2;
-      if (scope === "many") score += 4;
-      checked.forEach(function(flag){ score += flag === "irreversible" || flag === "data" ? 3 : 1; });
-      if (score <= 3) return {key:"light", label:"Light Track", score:score, risks:checked};
-      if (score <= 8) return {key:"standard", label:"Standard Track", score:score, risks:checked};
-      return {key:"heavy", label:"Heavy Track", score:score, risks:checked};
+    function renderNodes(){
+      $('loop1Nodes').innerHTML = steps.filter(s=>s.loop==='loop1').map(nodeHtml).join('');
+      $('loop2Nodes').innerHTML = steps.filter(s=>s.loop==='loop2').map(nodeHtml).join('');
+      document.querySelectorAll('.node').forEach(btn => btn.addEventListener('click', () => setActive(steps.findIndex(s => s.id === btn.dataset.id))));
     }
-
-    function generatePacket() {
-      const task = document.getElementById("taskInput").value.trim() || "Untitled task";
-      const route = computeTrack();
-      const badge = document.getElementById("trackBadge");
-      badge.className = "track-badge " + route.key;
-      badge.textContent = route.label;
-      const artifacts = artifactsByTrack[route.key];
-      document.getElementById("artifactList").innerHTML = artifacts.map(function(item){ return '<span class="chip">' + item + '</span>'; }).join("");
-      const riskText = route.risks.length ? route.risks.join(", ") : "none";
-      const packet = [
-        "# 010 Problem Definition / ResearchLoop V4",
-        "",
-        "Task:",
-        task,
-        "",
-        "Recommended route: " + route.label,
-        "Route score: " + route.score,
-        "Risk flags: " + riskText,
-        "",
-        "Goal:",
-        "- Deliver the requested outcome without changing scope silently.",
-        "- Keep public artifacts privacy-safe and reproducible.",
-        "",
-        "Non-goals:",
-        "- Do not execute external writes until the plan and boundary are explicit.",
-        "- Do not treat generated UI text as verified evidence.",
-        "",
-        "Acceptance criteria:",
-        "- The deliverable matches the approved manifest.",
-        "- Tests or checks listed in 040 pass.",
-        "- Sensitive information scan has no public-leak hits.",
-        "- Reviewer findings are resolved or documented.",
-        "",
-        "Next artifacts:",
-        artifacts.map(function(item){ return "- " + item; }).join("\n"),
-        "",
-        "Stop condition:",
-        "- Stop if evidence conflicts with the plan, if credentials are required, or if an irreversible external action is not explicitly authorized."
-      ].join("\n");
-      document.getElementById("packetOutput").textContent = packet;
+    function nodeHtml(s){
+      const is = steps[active].id === s.id;
+      return '<button class="node '+(is?'active pulse':'')+'" data-id="'+s.id+'" data-agent="'+s.agent+'" type="button"><span class="agent-dot"></span><small>'+s.code+' · '+s.agent+'</small><strong>'+s.title.replace(s.agent + ' ', '')+'</strong><span>'+s.action+' → '+s.artifact+'</span></button>';
     }
-
-    function renderSteps() {
-      const grid = document.getElementById("stepGrid");
-      grid.innerHTML = steps.map(function(step, index){
-        return '<button class="step-btn' + (index === 0 ? ' active' : '') + '" type="button" data-step="' + step.id + '"><strong>' + step.id + ' · ' + step.loop + '</strong><span>' + step.title + '</span></button>';
-      }).join("");
-      grid.addEventListener("click", function(event){
-        const button = event.target.closest("button[data-step]");
-        if (!button) return;
-        document.querySelectorAll(".step-btn").forEach(function(btn){ btn.classList.remove("active"); });
-        button.classList.add("active");
-        renderStepDetail(button.dataset.step);
-      });
-      renderStepDetail("010");
+    function classForAgent(agent){ return agent === 'Claude' ? 'claude' : agent === 'Codex' ? 'codex' : ''; }
+    function setActive(i){
+      if (i < 0) i = steps.length - 1;
+      if (i >= steps.length) i = 0;
+      active = i;
+      const s = steps[active];
+      renderNodes();
+      $('loop1Card').classList.toggle('active-loop', s.loop === 'loop1');
+      $('loop2Card').classList.toggle('active-loop', s.loop === 'loop2');
+      $('agentChip').textContent = s.agent;
+      $('agentChip').className = 'agent-chip ' + classForAgent(s.agent);
+      $('signalChip').textContent = s.signal;
+      $('signalChip').className = 'signal ' + s.signalClass;
+      $('activeTitle').textContent = s.title;
+      $('activeDesc').textContent = s.desc;
+      $('activeAction').textContent = s.action;
+      $('activeArtifact').textContent = s.artifact;
+      $('activeReview').textContent = s.review;
+      $('activeNext').textContent = s.next;
+      $('roundBadge').textContent = 'Round ' + round + ' · ' + s.code + ' · ' + s.agent;
+      renderState(s.state);
+      renderEvidence(s);
+      renderPrompt(s);
+      window.__researchLoopState = {active, round, id:s.id, agent:s.agent, signal:s.signal};
     }
-
-    function renderStepDetail(id) {
-      const step = steps.find(function(item){ return item.id === id; }) || steps[0];
-      document.getElementById("stepDetail").innerHTML = '<span class="chip violet">' + step.loop + '</span><h3>' + step.id + ' · ' + step.title + '</h3><p>' + step.desc + '</p><div class="detail-meta"><span class="chip">Owner: ' + step.owner + '</span><span class="chip green">Gate: ' + step.gate + '</span><span class="chip amber">Artifact: ' + step.artifact + '</span></div><ul>' + step.items.map(function(item){ return '<li>' + item + '</li>'; }).join("") + '</ul><div class="owner-grid"><div class="owner-row"><strong>State impact</strong><span>draft → approved → implemented → verified</span></div><div class="owner-row"><strong>Evidence rule</strong><span>Every claim needs a file, command, screenshot, or review ID.</span></div></div>';
+    function renderState(state){
+      const labels = ['draft','reviewed','implemented','G3 candidate'];
+      $('stateChain').innerHTML = labels.map((label, idx) => '<span class="'+(idx < state ? 'done' : idx === state ? 'active' : '')+'">'+label+'</span>').join('');
     }
-
-    function renderGates() {
-      const list = document.getElementById("gateList");
-      list.innerHTML = gateItems.map(function(item, index){
-        const checked = index < 3 ? " checked" : "";
-        return '<label class="gate-item"><input type="checkbox" value="' + item.id + '"' + checked + '><span><strong>' + item.title + '</strong><span>' + item.text + '</span></span><span class="chip">G' + (index < 3 ? '1' : index < 5 ? '2' : '3') + '</span></label>';
-      }).join("");
-      list.addEventListener("change", updateGates);
-      updateGates();
+    function renderEvidence(s){
+      $('evidenceList').innerHTML = s.evidence.map((id, idx) => '<div class="evidence-item"><span class="evidence-id">'+id+'</span><p>'+evidenceText(s, idx)+'</p><span class="grade">A</span></div>').join('');
     }
-
-    function updateGates() {
-      const total = gateItems.length;
-      const checked = document.querySelectorAll("#gateList input:checked").length;
-      const percent = Math.round((checked / total) * 100);
-      const ring = document.getElementById("stateRing");
-      ring.style.setProperty("--progress", Math.round((checked / total) * 360) + "deg");
-      document.getElementById("statePercent").textContent = percent + "%";
-      let text = "Waiting for G1 evidence.";
-      let active = 0;
-      if (checked >= 3) { text = "G1 ready. Plan can move toward approval."; active = 1; }
-      if (checked >= 5) { text = "G2 ready. Execution can be authorized."; active = 2; }
-      if (checked === 6) { text = "G3 candidate. Human acceptance still required."; active = 3; }
-      document.getElementById("stateText").textContent = text;
-      document.querySelectorAll("#stateSteps span").forEach(function(span, index){ span.classList.toggle("active", index <= active); });
+    function evidenceText(s, idx){
+      if (s.loop === 'loop1' && s.agent === 'Claude') return idx === 0 ? '独立审查意见已经绑定到具体 artifact。' : 'BLOCKER/RISK/PASS 可追踪到修改建议。';
+      if (s.loop === 'loop1') return idx === 0 ? 'GPT-Pro 输出的方案草案或修复版。' : '边界、Test Oracle 或路线修复证据。';
+      if (s.agent === 'Codex') return idx === 0 ? '执行 diff、测试输出或截图证据。' : '复盘报告中的问题与解决过程。';
+      return idx === 0 ? 'Claude Plan 或终检报告。' : 'G2/G3 候选与验收前证据。';
     }
-
-    function renderEvidence(filter) {
-      const activeFilter = filter || "all";
-      const filters = ["all", "Loop 1", "Claude Code", "Codex", "A", "B", "D"];
-      document.getElementById("ledgerFilters").innerHTML = filters.map(function(item){ return '<button class="filter-btn' + (item === activeFilter ? ' active' : '') + '" type="button" data-filter="' + item + '">' + item + '</button>'; }).join("");
-      const rows = evidence.filter(function(row){ return activeFilter === "all" || row.tag === activeFilter || row.grade === activeFilter; });
-      document.getElementById("ledgerBody").innerHTML = rows.map(function(row){ return '<tr><td>' + row.id + '</td><td>' + row.stage + '</td><td>' + row.claim + '</td><td>' + row.evidence + '</td><td><span class="grade ' + row.grade.toLowerCase() + '">' + row.grade + '</span></td></tr>'; }).join("");
+    function renderPrompt(s){
+      $('promptLabel').textContent = s.agent + ' · ' + s.action + ' 提示词';
+      $('promptText').textContent = s.prompt;
     }
-
-    function renderCases(activeId) {
-      const selected = cases.find(function(item){ return item.id === activeId; }) || cases[0];
-      document.getElementById("caseTabs").innerHTML = cases.map(function(item){ return '<button type="button" class="case-tab' + (item.id === selected.id ? ' active' : '') + '" data-case="' + item.id + '">' + item.label + '<span>' + item.title + '</span></button>'; }).join("");
-      document.getElementById("caseBody").innerHTML = '<h3>' + selected.title + '</h3><p>' + selected.summary + '</p><div class="case-metrics">' + selected.metrics.map(function(item){ return '<div class="metric"><strong>' + item + '</strong><span>workflow property</span></div>'; }).join("") + '</div><ul class="timeline">' + selected.timeline.map(function(item){ return '<li><b>' + item[0] + '</b><span>' + item[1] + '</span></li>'; }).join("") + '</ul>';
+    function nextStep(){
+      if (active === steps.length - 1) { round += 1; setActive(0); }
+      else setActive(active + 1);
     }
-
-    async function copyText(id, button) {
-      const text = document.getElementById(id).textContent;
-      try {
-        await navigator.clipboard.writeText(text);
-        const old = button.textContent;
-        button.textContent = "Copied";
-        setTimeout(function(){ button.textContent = old; }, 1300);
-      } catch (error) {
-        const area = document.createElement("textarea");
-        area.value = text;
-        document.body.appendChild(area);
-        area.select();
-        document.execCommand("copy");
-        area.remove();
-        button.textContent = "Copied";
-      }
+    function togglePlay(){
+      if (timer) { clearInterval(timer); timer = null; $('playBtn').textContent = '自动演示循环'; return; }
+      $('playBtn').textContent = '暂停演示';
+      timer = setInterval(nextStep, 1450);
     }
-
-    function downloadPacket() {
-      const text = document.getElementById("packetOutput").textContent;
-      const blob = new Blob([text], {type:"text/markdown;charset=utf-8"});
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "researchloop-010-packet.md";
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      URL.revokeObjectURL(url);
+    async function copyPrompt(){
+      try { await navigator.clipboard.writeText($('promptText').textContent); $('copyPrompt').textContent = '已复制'; setTimeout(() => $('copyPrompt').textContent = '复制', 1200); }
+      catch(e){ $('copyPrompt').textContent = '请手动复制'; }
     }
-
-    document.addEventListener("DOMContentLoaded", function(){
-      generatePacket();
-      renderSteps();
-      renderGates();
-      renderEvidence("all");
-      renderCases("apmcm");
-      document.getElementById("generateBtn").addEventListener("click", generatePacket);
-      document.getElementById("taskInput").addEventListener("input", generatePacket);
-      document.getElementById("uncertainty").addEventListener("change", generatePacket);
-      document.getElementById("scope").addEventListener("change", generatePacket);
-      document.querySelectorAll(".checks input").forEach(function(input){ input.addEventListener("change", generatePacket); });
-      document.getElementById("downloadPacket").addEventListener("click", downloadPacket);
-      document.getElementById("ledgerFilters").addEventListener("click", function(event){ const button = event.target.closest("button[data-filter]"); if (button) renderEvidence(button.dataset.filter); });
-      document.getElementById("caseTabs").addEventListener("click", function(event){ const button = event.target.closest("button[data-case]"); if (button) renderCases(button.dataset.case); });
-      document.querySelectorAll(".copy-btn").forEach(function(button){ button.addEventListener("click", function(){ copyText(button.dataset.copy, button); }); });
+    function generatePacket(){
+      const task = $('taskInput').value.trim() || '未命名任务';
+      const risk = $('riskSelect').value;
+      const scope = $('scopeSelect').value;
+      const route = risk === 'high' || scope === 'release' ? '重型轨道：完整双 Loop + G2/G3' : risk === 'medium' || scope === 'multi' ? '标准轨道：Loop 1 审查 + Loop 2 执行复核' : '轻型轨道：最小审查 + 快速验证';
+      $('packetOutput').textContent = ['# 010 输入包 / ResearchLoop V4.1','', '任务：', task, '', '推荐路线：' + route, '', 'Loop 1 输入：', '- 由 GPT-Pro 生成问题定义与候选方案', '- 由 Claude 独立检验并给出修改意见', '- GPT-Pro 根据意见修复，直到 Claude PASS', '', 'Loop 2 输入：', '- Claude 给出可执行 Plan', '- Codex 执行、测试、复盘', '- Claude 检验 diff、测试与复盘', '', '停止条件：', '- 出现未授权外部写入、隐私风险、Test Oracle 缺失或 Plan 与现实冲突时停止。'].join('\n');
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+      renderNodes(); setActive(0); generatePacket();
+      $('nextBtn').addEventListener('click', nextStep);
+      $('playBtn').addEventListener('click', togglePlay);
+      $('heroPlay').addEventListener('click', () => { location.hash = '#control'; if(!timer) togglePlay(); });
+      $('resetBtn').addEventListener('click', () => { if(timer) togglePlay(); round = 1; setActive(0); });
+      $('copyPrompt').addEventListener('click', copyPrompt);
+      $('packetBtn').addEventListener('click', generatePacket);
+      ['taskInput','riskSelect','scopeSelect'].forEach(id => $(id).addEventListener('input', generatePacket));
+      window.__researchLoop = { nextStep, setActive, getState: () => window.__researchLoopState };
     });
   </script>
 </body>
