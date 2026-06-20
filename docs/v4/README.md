@@ -13,7 +13,7 @@ ResearchLoop V4 把复杂科研、竞赛、论文和 AI 编程任务拆成两个
 | `010-claude-code-reviewer-v4.md` | Claude Code 审查官：仓库探索、计划级调研、plan、派工、终检 |
 | `020-codex-executor-v4.md` | Codex 执行员：加载检查、执行前复核、隔离实现、测试、复盘与回传 |
 | `../../apps/researchloop.html` | ResearchLoop HTML 原型：引导输入并生成 `010-问题定义.md` |
-| `../../assets/researchloop-v4-flowchart.jpg` | V4 工作流总流程图 |
+| `../../assets/researchloop-v4-flowchart.png` | V4 工作流总流程图 |
 
 ## 状态流
 
@@ -31,3 +31,4 @@ draft -> approved -> implemented -> verified
 - **G1 方向门**：确认问题定义和选定路线。
 - **G2 执行门**：确认 plan、Test Oracle、隔离、回滚和外部写权限。
 - **G3 验收门**：确认最终交付、终检证据和反证搜索。
+

@@ -64,7 +64,7 @@ draft -> approved -> implemented -> verified
 ├── apps/
 │   └── researchloop.html                      # ResearchLoop HTML prototype
 ├── assets/
-│   └── researchloop-v4-flowchart.jpg          # V4 workflow diagram
+│   └── researchloop-v4-flowchart.png          # V4 workflow diagram
 ├── docs/
 │   ├── architecture.md                        # Architecture notes
 │   ├── v4/
@@ -106,4 +106,5 @@ This workflow has been used across competition and research projects:
 ## License
 
 [MIT](./LICENSE) © 2026 田中斐 (Tian Zhongfei)
+
 
