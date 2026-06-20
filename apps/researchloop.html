@@ -1,964 +1,187 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ResearchLoop V4 - Multi-Agent Research Workflow</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ResearchLoop V4 · 双 Loop 多智能体协作工作流 Demo</title>
+  <meta name="description" content="ResearchLoop V4: 双 Loop 多智能体协作工作流，覆盖轨道选择、Loop 1 方案层、Loop 2 协同交付层、G1/G2/G3 门禁、证据链与状态机。" />
   <style>
-    /* === Theme CSS variables === */
-    :root {
-      --bg: #0f172a;
-      --bg2: #1e293b;
-      --bg3: #162032;
-      --ink: #f1f5f9;
-      --muted: #94a3b8;
-      --rule: #334155;
-      --accent: #38bdf8;
-      --accent2: #818cf8;
-      --accent-dim: rgba(56,189,248,0.12);
-      --accent2-dim: rgba(129,140,248,0.12);
-      --success: #34d399;
-      --danger: #f87171;
-      --warn: #fbbf24;
-      --font: 'Segoe UI', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
-      --font-mono: 'Cascadia Code', 'Fira Code', 'Consolas', 'Courier New', monospace;
-      --max: 1080px;
-      --radius: 12px;
+    :root{
+      --bg:#f6f8fc;--paper:#ffffff;--ink:#172033;--muted:#64748b;--line:#dbe5f3;
+      --blue:#1d4ed8;--blue2:#0f3a87;--orange:#ea580c;--green:#15803d;--red:#dc2626;
+      --cyan:#0891b2;--shadow:0 18px 50px rgba(15,23,42,.10);--radius:18px;
     }
-
-    /* === Reset === */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { font-size: 16px; scroll-behavior: smooth; }
-    body {
-      font-family: var(--font);
-      color: var(--ink);
-      background: var(--bg);
-      line-height: 1.75;
-      padding: 0;
-      overflow-x: hidden;
-    }
-
-    /* === Scrollbar === */
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: var(--bg); }
-    ::-webkit-scrollbar-thumb { background: var(--rule); border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
-
-    /* === Container === */
-    .container {
-      max-width: var(--max);
-      margin: 0 auto;
-      padding: 0 1.5rem;
-    }
-
-    /* === Scroll Reveal Animation === */
-    .reveal {
-      opacity: 0;
-      transform: translateY(30px);
-      transition: opacity 0.6s ease, transform 0.6s ease;
-    }
-    .reveal.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    /* === Hero === */
-    .hero {
-      text-align: center;
-      padding: 6rem 1.5rem 5rem;
-      background: linear-gradient(180deg, rgba(56,189,248,0.06) 0%, rgba(129,140,248,0.04) 50%, transparent 100%);
-      border-bottom: 1px solid var(--rule);
-      position: relative;
-      overflow: hidden;
-    }
-    .hero::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(ellipse at 50% 0%, rgba(56,189,248,0.08) 0%, transparent 60%);
-      animation: heroGlow 8s ease-in-out infinite alternate;
-    }
-    @keyframes heroGlow {
-      0% { opacity: 0.5; }
-      100% { opacity: 1; }
-    }
-    .hero-badge {
-      display: inline-block;
-      font-size: 0.78rem;
-      font-weight: 600;
-      color: var(--accent);
-      border: 1px solid var(--accent);
-      padding: 0.35rem 1rem;
-      border-radius: 999px;
-      margin-bottom: 2rem;
-      letter-spacing: 0.06em;
-      position: relative;
-      z-index: 1;
-    }
-    .hero h1 {
-      font-size: 3.5rem;
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      margin-bottom: 0.75rem;
-      background: linear-gradient(135deg, var(--ink) 30%, var(--accent) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      position: relative;
-      z-index: 1;
-    }
-    .hero .tagline {
-      font-size: 1.15rem;
-      color: var(--muted);
-      max-width: 640px;
-      margin: 0 auto 3rem;
-      line-height: 1.7;
-      position: relative;
-      z-index: 1;
-    }
-
-    /* === Hero Transform Animation === */
-    .hero-transform {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 1rem;
-      flex-wrap: wrap;
-      position: relative;
-      z-index: 1;
-    }
-    .hero-transform .phase {
-      padding: 0.75rem 1.5rem;
-      border-radius: var(--radius);
-      font-size: 0.95rem;
-      font-weight: 600;
-      opacity: 0;
-      transform: translateY(20px);
-      animation: phaseIn 0.6s ease forwards;
-    }
-    .hero-transform .phase:nth-child(1) { animation-delay: 0.3s; background: rgba(248,113,113,0.15); color: #fca5a5; border: 1px solid rgba(248,113,113,0.3); }
-    .hero-transform .phase:nth-child(2) { animation-delay: 0.9s; background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(56,189,248,0.3); }
-    .hero-transform .phase:nth-child(3) { animation-delay: 1.5s; background: rgba(52,211,153,0.15); color: var(--success); border: 1px solid rgba(52,211,153,0.3); }
-    .hero-transform .arrow {
-      font-size: 1.5rem;
-      color: var(--muted);
-      opacity: 0;
-      animation: arrowIn 0.4s ease forwards;
-    }
-    .hero-transform .arrow:nth-child(2) { animation-delay: 0.7s; }
-    .hero-transform .arrow:nth-child(4) { animation-delay: 1.3s; }
-    @keyframes phaseIn {
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes arrowIn {
-      to { opacity: 0.6; }
-    }
-
-    /* === Section Headings === */
-    .section-title {
-      font-size: 1.6rem;
-      font-weight: 700;
-      margin: 4rem 0 1.5rem;
-      padding-bottom: 0.6rem;
-      border-bottom: 2px solid var(--accent);
-      display: inline-block;
-    }
-    .section-subtitle {
-      font-size: 1rem;
-      font-weight: 700;
-      color: var(--accent);
-      margin: 2rem 0 0.75rem;
-    }
-
-    /* === Paragraphs & Lists === */
-    p { margin-bottom: 1rem; color: var(--ink); }
-    ul, ol { margin: 0 0 1.25rem 1.5rem; color: var(--ink); }
-    li { margin-bottom: 0.5rem; }
-    strong { color: var(--accent); font-weight: 600; }
-
-    /* === Bento Grid === */
-    .bento {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      grid-template-rows: auto;
-      gap: 1rem;
-      margin: 2rem 0;
-    }
-    .bento-card {
-      background: var(--bg2);
-      border: 1px solid var(--rule);
-      border-radius: var(--radius);
-      padding: 1.5rem;
-      transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
-      position: relative;
-      overflow: hidden;
-    }
-    .bento-card:hover {
-      transform: translateY(-4px);
-      border-color: var(--accent);
-      box-shadow: 0 8px 30px rgba(56,189,248,0.08);
-    }
-    .bento-card .card-icon {
-      font-size: 1.5rem;
-      margin-bottom: 0.75rem;
-      display: block;
-    }
-    .bento-card h4 {
-      font-size: 1.05rem;
-      font-weight: 700;
-      color: var(--accent);
-      margin-bottom: 0.5rem;
-    }
-    .bento-card p {
-      font-size: 0.9rem;
-      color: var(--muted);
-      margin: 0;
-      line-height: 1.6;
-    }
-    .bento-card ul {
-      margin: 0.5rem 0 0 1.25rem;
-      font-size: 0.9rem;
-      color: var(--muted);
-    }
-    .bento-card ul li { margin-bottom: 0.3rem; }
-    /* Bento sizes */
-    .bento-wide { grid-column: span 2; }
-    .bento-tall { grid-row: span 2; }
-
-    /* === Before / After === */
-    .compare {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.5rem;
-      margin: 2rem 0;
-    }
-    .compare-panel {
-      border-radius: var(--radius);
-      padding: 1.5rem;
-      border: 1px solid var(--rule);
-    }
-    .compare-panel.before {
-      background: rgba(248,113,113,0.06);
-      border-color: rgba(248,113,113,0.2);
-    }
-    .compare-panel.after {
-      background: rgba(52,211,153,0.06);
-      border-color: rgba(52,211,153,0.2);
-    }
-    .compare-label {
-      font-size: 0.8rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      margin-bottom: 1rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .compare-label .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      display: inline-block;
-    }
-    .compare-panel.before .compare-label { color: #fca5a5; }
-    .compare-panel.before .dot { background: #f87171; }
-    .compare-panel.after .compare-label { color: var(--success); }
-    .compare-panel.after .dot { background: var(--success); }
-    .compare-content {
-      font-family: var(--font-mono);
-      font-size: 0.85rem;
-      line-height: 1.8;
-      color: var(--muted);
-      white-space: pre-wrap;
-    }
-    .compare-panel.after .compare-content { color: var(--ink); }
-    .compare-panel.after .compare-content .hl { color: var(--accent); font-weight: 600; }
-    .compare-panel.after .compare-content .ok { color: var(--success); }
-
-    /* === Spec Generator === */
-    .spec-gen {
-      background: var(--bg2);
-      border: 1px solid var(--rule);
-      border-radius: var(--radius);
-      padding: 2rem;
-      margin: 2rem 0;
-    }
-    .spec-form {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
-    .spec-form .full { grid-column: span 2; }
-    .spec-field label {
-      display: block;
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--accent);
-      margin-bottom: 0.4rem;
-    }
-    .spec-field input,
-    .spec-field textarea {
-      width: 100%;
-      background: var(--bg);
-      border: 1px solid var(--rule);
-      border-radius: 8px;
-      padding: 0.65rem 0.9rem;
-      color: var(--ink);
-      font-family: var(--font);
-      font-size: 0.9rem;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-    .spec-field input:focus,
-    .spec-field textarea:focus {
-      border-color: var(--accent);
-    }
-    .spec-field input::placeholder,
-    .spec-field textarea::placeholder {
-      color: var(--muted);
-      opacity: 0.6;
-    }
-    .spec-field textarea { resize: vertical; min-height: 60px; }
-    .spec-actions {
-      display: flex;
-      gap: 0.75rem;
-      flex-wrap: wrap;
-      margin-bottom: 1.5rem;
-    }
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      padding: 0.6rem 1.25rem;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      cursor: pointer;
-      border: none;
-      transition: all 0.2s;
-    }
-    .btn-primary {
-      background: var(--accent);
-      color: var(--bg);
-    }
-    .btn-primary:hover { background: #7dd3fc; transform: translateY(-1px); }
-    .btn-secondary {
-      background: transparent;
-      color: var(--accent);
-      border: 1px solid var(--accent);
-    }
-    .btn-secondary:hover { background: var(--accent-dim); }
-    .btn:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-      transform: none !important;
-    }
-    .spec-output {
-      background: var(--bg);
-      border: 1px solid var(--rule);
-      border-radius: 8px;
-      padding: 1.25rem;
-      font-family: var(--font-mono);
-      font-size: 0.85rem;
-      line-height: 1.7;
-      color: var(--ink);
-      white-space: pre-wrap;
-      overflow-x: auto;
-      max-height: 500px;
-      overflow-y: auto;
-      display: none;
-    }
-    .spec-output.active { display: block; }
-    .spec-output .md-h1 { color: var(--accent); font-weight: 700; font-size: 1.05rem; }
-    .spec-output .md-h2 { color: var(--accent2); font-weight: 700; }
-    .spec-output .md-bold { color: var(--ink); font-weight: 600; }
-    .spec-output .md-muted { color: var(--muted); }
-    .spec-output .md-success { color: var(--success); font-weight: 600; }
-    .spec-output .md-warn { color: var(--warn); }
-
-    /* === Timeline === */
-    .timeline {
-      position: relative;
-      padding: 2rem 0;
-      margin: 2rem 0;
-    }
-    .timeline::before {
-      content: '';
-      position: absolute;
-      left: 20px;
-      top: 0;
-      bottom: 0;
-      width: 2px;
-      background: linear-gradient(180deg, var(--accent), var(--accent2), var(--success));
-      border-radius: 1px;
-    }
-    .tl-item {
-      position: relative;
-      padding-left: 56px;
-      margin-bottom: 2.5rem;
-    }
-    .tl-item:last-child { margin-bottom: 0; }
-    .tl-dot {
-      position: absolute;
-      left: 12px;
-      top: 4px;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      border: 3px solid var(--accent);
-      background: var(--bg);
-      z-index: 1;
-    }
-    .tl-item:nth-child(2) .tl-dot { border-color: var(--accent2); }
-    .tl-item:nth-child(3) .tl-dot { border-color: var(--warn); }
-    .tl-item:nth-child(4) .tl-dot { border-color: var(--success); }
-    .tl-item:nth-child(5) .tl-dot { border-color: var(--accent); }
-    .tl-code {
-      font-family: var(--font-mono);
-      font-size: 0.8rem;
-      font-weight: 700;
-      color: var(--accent);
-      margin-bottom: 0.25rem;
-    }
-    .tl-item:nth-child(2) .tl-code { color: var(--accent2); }
-    .tl-item:nth-child(3) .tl-code { color: var(--warn); }
-    .tl-item:nth-child(4) .tl-code { color: var(--success); }
-    .tl-item:nth-child(5) .tl-code { color: var(--accent); }
-    .tl-title {
-      font-size: 1rem;
-      font-weight: 700;
-      margin-bottom: 0.25rem;
-    }
-    .tl-desc {
-      font-size: 0.9rem;
-      color: var(--muted);
-      line-height: 1.6;
-    }
-    /* Progress bar inside timeline */
-    .tl-progress {
-      margin-top: 0.5rem;
-      height: 4px;
-      background: var(--rule);
-      border-radius: 2px;
-      overflow: hidden;
-    }
-    .tl-progress-bar {
-      height: 100%;
-      border-radius: 2px;
-      background: var(--accent);
-      width: 0%;
-      transition: width 1s ease;
-    }
-    .tl-item:nth-child(2) .tl-progress-bar { background: var(--accent2); }
-    .tl-item:nth-child(3) .tl-progress-bar { background: var(--warn); }
-    .tl-item:nth-child(4) .tl-progress-bar { background: var(--success); }
-    .tl-item:nth-child(5) .tl-progress-bar { background: var(--accent); }
-
-    /* === Callout === */
-    .callout {
-      background: var(--bg2);
-      border-left: 4px solid var(--accent);
-      padding: 1.25rem 1.5rem;
-      border-radius: 0 var(--radius) var(--radius) 0;
-      margin: 1.5rem 0;
-    }
-    .callout p { margin: 0; color: var(--muted); }
-
-    /* === Quote === */
-    blockquote {
-      border-left: 3px solid var(--accent2);
-      padding-left: 1.25rem;
-      margin: 1.5rem 0;
-      color: var(--muted);
-      font-style: italic;
-    }
-
-    /* === Footer === */
-    footer {
-      margin-top: 4rem;
-      padding: 2.5rem 1.5rem 3rem;
-      border-top: 1px solid var(--rule);
-      text-align: center;
-      color: var(--muted);
-      font-size: 0.85rem;
-    }
-
-    /* === Toast === */
-    .toast {
-      position: fixed;
-      bottom: 2rem;
-      right: 2rem;
-      background: var(--accent);
-      color: var(--bg);
-      padding: 0.75rem 1.25rem;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      opacity: 0;
-      transform: translateY(10px);
-      transition: all 0.3s ease;
-      z-index: 999;
-      pointer-events: none;
-    }
-    .toast.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    /* === Responsive === */
-    @media (max-width: 768px) {
-      .hero h1 { font-size: 2.4rem; }
-      .hero { padding: 4rem 1rem 3.5rem; }
-      .hero-transform { gap: 0.6rem; }
-      .hero-transform .phase { padding: 0.6rem 1rem; font-size: 0.85rem; }
-      .bento { grid-template-columns: 1fr; }
-      .bento-wide { grid-column: span 1; }
-      .bento-tall { grid-row: span 1; }
-      .compare { grid-template-columns: 1fr; }
-      .spec-form { grid-template-columns: 1fr; }
-      .spec-form .full { grid-column: span 1; }
-      .section-title { font-size: 1.3rem; }
-    }
-    @media (max-width: 480px) {
-      .hero h1 { font-size: 2rem; }
-      .hero-transform .arrow { display: none; }
-      .hero-transform { flex-direction: column; }
-    }
-
-    /* === Reduced Motion === */
-    @media (prefers-reduced-motion: reduce) {
-      .reveal { opacity: 1; transform: none; transition: none; }
-      .hero-transform .phase, .hero-transform .arrow { animation: none; opacity: 1; transform: none; }
-      .hero::before { animation: none; }
-      .tl-progress-bar { transition: none; }
-      .bento-card { transition: none; }
-    }
+    *{box-sizing:border-box} html{scroll-behavior:smooth} body{margin:0;font-family:"Segoe UI","Microsoft YaHei","PingFang SC",Arial,sans-serif;color:var(--ink);background:radial-gradient(circle at top left,#e0f2fe 0,#f6f8fc 34%,#fff 100%);line-height:1.72}
+    a{color:var(--blue);text-decoration:none;font-weight:800} a:hover{text-decoration:underline}.wrap{max-width:1180px;margin:0 auto;padding:0 22px}.nav{position:sticky;top:0;z-index:9;background:rgba(255,255,255,.88);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}.nav-inner{max-width:1180px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:12px 22px}.brand{font-weight:950;color:var(--blue2);letter-spacing:.2px}.nav a{font-size:13px;color:#334155;margin-left:14px}.hero{padding:64px 0 34px}.badge{display:inline-flex;align-items:center;gap:8px;background:#e0f2fe;border:1px solid #bae6fd;color:#075985;border-radius:999px;padding:7px 12px;font-weight:900;font-size:13px}.hero-grid{display:grid;grid-template-columns:1.08fr .92fr;gap:28px;align-items:center}.hero h1{font-size:48px;line-height:1.08;margin:18px 0 14px;color:#102a56;letter-spacing:-.8px}.hero h1 span{color:var(--orange)}.lead{font-size:18px;color:#334155;margin:0 0 20px}.cta{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}.btn{display:inline-flex;align-items:center;justify-content:center;border-radius:12px;padding:10px 14px;font-weight:900;border:1px solid var(--line);background:#fff;color:#12376b;box-shadow:0 4px 16px rgba(15,23,42,.06)}.btn.primary{background:var(--blue);color:#fff;border-color:var(--blue)}.btn.orange{background:#fff7ed;color:#9a3412;border-color:#fed7aa}.hero-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}.metric-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:16px}.metric{border:1px solid var(--line);border-radius:14px;padding:13px;background:#f8fbff}.metric b{display:block;color:var(--orange);font-size:24px}.metric span{color:#475569;font-size:13px;font-weight:800}.section{padding:34px 0}.section h2{font-size:30px;color:#102a56;margin:0 0 8px}.sub{color:var(--muted);margin:0 0 18px}.panel{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:0 10px 32px rgba(15,23,42,.07)}.flow-img{width:100%;display:block;border-radius:16px;border:1px solid var(--line);background:#fff}.note{border-left:5px solid var(--orange);background:#fff7ed;border-radius:14px;padding:13px 15px;color:#7c2d12;margin-top:14px}.tracks{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.track{background:#fff;border:1px solid var(--line);border-radius:16px;padding:17px;position:relative;overflow:hidden}.track:before{content:"";position:absolute;inset:0 0 auto 0;height:5px;background:var(--green)}.track.standard:before{background:var(--blue)}.track.heavy:before{background:var(--red)}.track h3{margin:3px 0 8px;font-size:19px}.track p{margin:0;color:#475569}.tag{display:inline-block;border-radius:999px;padding:3px 9px;font-size:12px;font-weight:900;background:#f1f5f9;color:#475569;margin:3px 5px 3px 0}.tag.green{background:#dcfce7;color:#166534}.tag.blue{background:#dbeafe;color:#1e40af}.tag.red{background:#fee2e2;color:#991b1b}.timeline{display:grid;gap:10px}.step{display:grid;grid-template-columns:70px 1fr 220px;gap:13px;align-items:start;border:1px solid var(--line);border-radius:16px;background:#fff;padding:14px}.step .num{font-size:18px;font-weight:950;color:#fff;background:var(--blue);border-radius:12px;text-align:center;padding:7px 6px}.step.loop2 .num{background:#0f766e}.step h3{margin:0 0 4px;color:#12376b}.step p{margin:0;color:#475569}.owner{font-size:13px;color:#334155;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:8px;font-weight:800}.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px}.card h3{margin:0 0 8px;color:#12376b}.card p,.card li{color:#475569}.card ul{margin:8px 0 0;padding-left:18px}.state{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.pill{padding:9px 12px;border-radius:999px;font-weight:950;border:1px solid var(--line);background:#fff}.arrow{color:var(--muted);font-weight:900}.gate{border:1px solid var(--line);background:#fff;border-radius:16px;padding:16px}.gate strong{color:var(--orange)}.codebox{position:relative}.codebox pre{white-space:pre-wrap;background:#0f172a;color:#e2e8f0;border-radius:16px;padding:18px;overflow:auto;font-size:13px;line-height:1.65}.copy{position:absolute;right:10px;top:10px;border:0;border-radius:10px;background:#38bdf8;color:#082f49;font-weight:950;padding:7px 10px;cursor:pointer}.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}.tab{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 12px;font-weight:900;color:#334155;cursor:pointer}.tab.active{background:var(--blue);color:#fff;border-color:var(--blue)}.tab-content{display:none}.tab-content.active{display:block}.footer{padding:32px 0 50px;color:#64748b;text-align:center}.danger-list li{margin:8px 0}.ok{color:var(--green);font-weight:950}.no{color:var(--red);font-weight:950}@media(max-width:900px){.hero-grid,.two{grid-template-columns:1fr}.tracks,.cards{grid-template-columns:1fr}.step{grid-template-columns:1fr}.nav a{display:none}.hero h1{font-size:36px}}
   </style>
 </head>
 <body>
-
-  <!-- ==================== HERO ==================== -->
-  <div class="hero">
-    <div class="hero-badge">ResearchLoop V4 · Multi-Agent Research Workflow</div>
-    <h1>ResearchLoop</h1>
-    <p class="tagline">项目定义与多智能体任务拆解助手 —— 让模糊目标变清晰，让复杂任务可执行</p>
-    <div class="hero-transform">
-      <div class="phase">模糊目标</div>
-      <div class="arrow">&#10132;</div>
-      <div class="phase">结构化 Spec</div>
-      <div class="arrow">&#10132;</div>
-      <div class="phase">Frozen 锁定</div>
+  <nav class="nav">
+    <div class="nav-inner">
+      <div class="brand">ResearchLoop V4</div>
+      <div><a href="#flow">流程图</a><a href="#tracks">轨道</a><a href="#loop1">Loop 1</a><a href="#loop2">Loop 2</a><a href="#prompts">提示词</a><a href="https://github.com/124-creator/ResearchLoop">GitHub</a></div>
     </div>
-  </div>
+  </nav>
 
-  <div class="container">
+  <header class="hero wrap">
+    <div class="hero-grid">
+      <div>
+        <span class="badge">V4 · 难题加固 + 强制门禁版</span>
+        <h1>双 Loop 多智能体协作工作流 <span>Demo</span></h1>
+        <p class="lead">这不是旧展示页，也不是单纯的 Agent 概念图。它把一项复杂科研 / 工程任务拆成“方案层 Loop 1”和“协同交付层 Loop 2”，用轨道选择、证据分级、G1/G2/G3 人类门、Test Oracle、Worktree Check 和复盘链控制 Agent 跑偏。</p>
+        <div class="cta">
+          <a class="btn primary" href="#flow">查看 V4 流程图</a>
+          <a class="btn" href="../docs/v4/000-dual-loop-controller-v4.md">总控指令</a>
+          <a class="btn orange" href="#prompts">复制启动提示词</a>
+        </div>
+      </div>
+      <aside class="hero-card">
+        <h2 style="margin:0;color:#102a56">核心不变量</h2>
+        <div class="metric-grid">
+          <div class="metric"><b>3</b><span>轨道：轻型 / 标准 / 重型</span></div>
+          <div class="metric"><b>2</b><span>Loop：方案层 + 交付层</span></div>
+          <div class="metric"><b>3</b><span>人类门：G1 / G2 / G3</span></div>
+          <div class="metric"><b>4</b><span>状态：draft → verified</span></div>
+        </div>
+        <p class="note">Demo 只演示工作流结构和交付物，不调用模型、不读取私有数据、不代表任何项目已经自动执行。</p>
+      </aside>
+    </div>
+  </header>
 
-    <!-- ==================== BENTO GRID ==================== -->
-    <section class="reveal">
-      <h2 class="section-title">产品全景</h2>
-      <div class="bento">
-        <!-- 用户痛点 - wide -->
-        <div class="bento-card bento-wide">
-          <span class="card-icon">&#9888;</span>
-          <h4>用户痛点</h4>
-          <p>很多科研、竞赛、论文和 AI 编程项目一开始只有模糊目标，没有明确成功标准和任务边界，导致后续执行时 AI 容易跑偏，人也很难验收结果。</p>
-          <ul>
-            <li><strong>目标模糊：</strong>缺乏清晰可衡量的成功标准</li>
-            <li><strong>范围蔓延：</strong>新需求不断加入，资源分散</li>
-            <li><strong>AI 跑偏：</strong>问题定义不清，输出偏离预期</li>
-            <li><strong>验收困难：</strong>无明确约束，难以判断完成</li>
-            <li><strong>知识断层：</strong>团队缺乏共识</li>
-          </ul>
-        </div>
-        <!-- 目标用户 -->
-        <div class="bento-card bento-tall">
-          <span class="card-icon">&#128101;</span>
-          <h4>目标用户</h4>
-          <ul>
-            <li><strong>研究生</strong> — 论文开题、课题研究前梳理研究问题</li>
-            <li><strong>数学建模队伍</strong> — 赛前对齐题目理解与求解策略</li>
-            <li><strong>科研论文写作者</strong> — 定义研究贡献与评估指标</li>
-            <li><strong>AI 编程工具用户</strong> — 生成结构化 Spec 提升输出质量</li>
-            <li><strong>复杂项目管理者</strong> — 启动阶段锁定需求减少返工</li>
-          </ul>
-        </div>
-        <!-- 核心功能 1 -->
-        <div class="bento-card">
-          <span class="card-icon">&#128172;</span>
-          <h4>引导式问题定义</h4>
-          <p>多轮结构化提问，引导用户从模糊想法走向清晰定义，如同与经验丰富的导师交流。</p>
-        </div>
-        <!-- 核心功能 2 -->
-        <div class="bento-card">
-          <span class="card-icon">&#128196;</span>
-          <h4>标准化 Markdown 输出</h4>
-          <p>自动生成包含目标、标准、约束、Out of Scope、已知/未知项、冻结状态的完整文档。</p>
-        </div>
-        <!-- 核心功能 3 -->
-        <div class="bento-card">
-          <span class="card-icon">&#129302;</span>
-          <h4>多智能体任务拆解</h4>
-          <p>基于 Spec 自动拆解任务并分配给研究员、写手、程序员、审校员等角色智能体。</p>
-        </div>
-        <!-- Spec Lock -->
-        <div class="bento-card">
-          <span class="card-icon">&#128274;</span>
-          <h4>Spec Lock 机制</h4>
-          <p>锁定为 Frozen Spec，作为执行和验收基准。变更需走正式流程，确保目标不偏移。</p>
-        </div>
-        <!-- 产品价值 - wide -->
-        <div class="bento-card bento-wide">
-          <span class="card-icon">&#128161;</span>
-          <h4>产品价值</h4>
-          <ul>
-            <li><strong>降低沟通成本</strong> — 标准化文档让团队对目标、约束和边界达成共识</li>
-            <li><strong>提升 AI 协作效率</strong> — 清晰定义让 AI 输出更精准，减少迭代</li>
-            <li><strong>防止范围蔓延</strong> — Out of Scope + 冻结机制控制需求变更</li>
-            <li><strong>沉淀项目知识</strong> — 文档成为知识资产，便于复盘与传承</li>
-          </ul>
-        </div>
-        <!-- 后续扩展 -->
-        <div class="bento-card">
-          <span class="card-icon">&#128640;</span>
-          <h4>后续扩展</h4>
-          <p>
-            <strong>MVP：</strong>引导式对话 + Markdown 生成<br>
-            <strong>P2：</strong>多智能体协作拆解<br>
-            <strong>P3：</strong>团队协同 + 版本管理<br>
-            <strong>P4：</strong>接入 Agent 执行与代码生成
-          </p>
-        </div>
+  <main>
+    <section id="flow" class="section wrap">
+      <h2>V4 流程图</h2>
+      <p class="sub">以最新工作流图片为准：轨道选择器 → Loop 1 方案层 → Loop 2 协同交付层 → 状态机与全局不变量。</p>
+      <div class="panel"><img class="flow-img" src="../assets/researchloop-v4-flowchart.png" alt="ResearchLoop V4 双 Loop 多智能体协作工作流流程图" /></div>
+    </section>
+
+    <section id="tracks" class="section wrap">
+      <h2>轨道选择器</h2>
+      <p class="sub">第一步不是开干，而是判断复杂度。小任务允许塌缩；不确定性越高，门禁越完整。</p>
+      <div class="tracks">
+        <article class="track"><span class="tag green">轻型</span><h3>一句话可描述 diff</h3><p>局部修改、路线明确、返工代价低。使用轻量任务卡 → 修改 → 最小测试 → 执行回执。</p></article>
+        <article class="track standard"><span class="tag blue">标准</span><h3>多文件功能 / 需比较路线</h3><p>存在 2–3 种合理做法，需要完整 Loop 1 + Loop 2，012 可选，Spike C 建议做。</p></article>
+        <article class="track heavy"><span class="tag red">重型</span><h3>高不确定 / 高风险</h3><p>科研、Agent、外部系统集成、安全隐私合规、重大性能风险。012 与 Spike A/B/C 全做。</p></article>
       </div>
     </section>
 
-    <!-- ==================== BEFORE / AFTER ==================== -->
-    <section class="reveal">
-      <h2 class="section-title">Before / After 对比</h2>
-      <p>没有 ResearchLoop 时，项目启动往往是一团模糊的想法；有了 ResearchLoop 后，所有关键信息被结构化锁定。</p>
-      <div class="compare">
-        <div class="compare-panel before">
-          <div class="compare-label"><span class="dot"></span>Before — 模糊需求</div>
-          <div class="compare-content">"我想做一个关于推荐系统的研究，
-大概是用深度学习的方法，
-数据集还没想好用哪个，
-反正就是想发一篇论文吧，
-时间好像不太够，
-导师说最好能创新一点……"</div>
-        </div>
-        <div class="compare-panel after">
-          <div class="compare-label"><span class="dot"></span>After — 结构化定义</div>
-          <div class="compare-content"><span class="hl"># 010-问题定义.md</span>
-
-<span class="ok">轨道：</span>标准
-<span class="ok">一句话目标：</span>基于图神经网络的电影推荐系统，在 MovieLens-1M 上将 NDCG@10 提升至 0.85+
-
-<span class="hl">## 成功标准</span>
-- NDCG@10 ≥ 0.85
-- 训练时间 ≤ 4 小时 (单 GPU)
-- 论文投稿至 CCF-B 及以上会议
-
-<span class="hl">## 硬约束</span>
-- 截止日期: 2026-09-15
-- 算力: 1x A100 80GB
-- 数据集: MovieLens-1M
-
-<span class="hl">## 明确不做</span>
-- 实时推荐系统部署
-- 多模态特征融合
-
-<span class="hl">## 冻结状态</span>
-<span class="ok">FROZEN</span> — 2026-06-18</div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ==================== SPEC GENERATOR ==================== -->
-    <section class="reveal">
-      <h2 class="section-title">在线 Spec 生成器</h2>
-      <p>输入你的项目信息，一键生成标准化问题定义文档。</p>
-      <div class="spec-gen">
-        <div class="spec-form">
-          <div class="spec-field full">
-            <label for="sp-topic">项目主题</label>
-            <input type="text" id="sp-topic" placeholder="例：基于图神经网络的电影推荐系统">
-          </div>
-          <div class="spec-field">
-            <label for="sp-user">目标用户 / 受众</label>
-            <input type="text" id="sp-user" placeholder="例：电影平台用户、学术评审">
-          </div>
-          <div class="spec-field">
-            <label for="sp-time">时间约束</label>
-            <input type="text" id="sp-time" placeholder="例：2026-09-15 前完成">
-          </div>
-          <div class="spec-field">
-            <label for="sp-criteria">成功标准关键词</label>
-            <input type="text" id="sp-criteria" placeholder="例：NDCG≥0.85, 训练≤4h, 发CCF-B论文">
-          </div>
-          <div class="spec-field">
-            <label for="sp-constraints">硬约束</label>
-            <input type="text" id="sp-constraints" placeholder="例：1x A100, MovieLens-1M 数据集">
-          </div>
-          <div class="spec-field full">
-            <label for="sp-outscope">明确不做 (Out of Scope)</label>
-            <input type="text" id="sp-outscope" placeholder="例：实时部署、多模态融合">
-          </div>
-          <div class="spec-field full">
-            <label for="sp-known">已知事实（可选）</label>
-            <textarea id="sp-known" rows="2" placeholder="例：已有基线模型 MF NDCG=0.78"></textarea>
-          </div>
-          <div class="spec-field full">
-            <label for="sp-unknown">未知项（可选）</label>
-            <textarea id="sp-unknown" rows="2" placeholder="例：图注意力层的最优层数尚未确定"></textarea>
-          </div>
-        </div>
-        <div class="spec-actions">
-          <button class="btn btn-primary" onclick="generateSpec()">&#9889; 生成问题定义</button>
-          <button class="btn btn-secondary" id="btn-copy" onclick="copySpec()" disabled>&#128203; 复制 Markdown</button>
-          <button class="btn btn-secondary" id="btn-download" onclick="downloadSpec()" disabled>&#128229; 下载 010-问题定义.md</button>
-        </div>
-        <div class="spec-output" id="spec-output"></div>
-      </div>
-    </section>
-
-    <!-- ==================== WORKFLOW TIMELINE ==================== -->
-    <section class="reveal">
-      <h2 class="section-title">ResearchLoop 工作流</h2>
-      <p>从问题定义到执行复盘的完整闭环。</p>
+    <section id="loop1" class="section wrap">
+      <h2>Loop 1 · 方案层：先做对的事</h2>
+      <p class="sub">目标是冻结问题、建立证据、比较路线、对抗评审、裁决路线并用 Spike 验证最危险假设。</p>
       <div class="timeline">
-        <div class="tl-item">
-          <div class="tl-dot"></div>
-          <div class="tl-code">010</div>
-          <div class="tl-title">问题定义</div>
-          <div class="tl-desc">通过引导式对话生成标准化 Spec 文档，锁定目标、标准、约束与边界。</div>
-          <div class="tl-progress"><div class="tl-progress-bar" data-width="100"></div></div>
+        <div class="step"><div class="num">010</div><div><h3>问题定义与需求确认</h3><p>冻结一句话目标、成功标准、硬约束、明确不做和验收口径；FROZEN 前必须人类逐条确认。</p></div><div class="owner">G1 第一道：方向是否值得做</div></div>
+        <div class="step"><div class="num">012</div><div><h3>难题风险地图</h3><p>先写清楚难在哪、关键未知项、风险类型和升级条件；重型必做，标准可选，轻型跳过。</p></div><div class="owner">防止过早收敛</div></div>
+        <div class="step"><div class="num">015</div><div><h3>调研基线与证据清单</h3><p>GPT-Pro 建立外部调研基线；每条关键证据标 A/B/C/D，区分 FACT / INFERENCE / UNKNOWN。</p></div><div class="owner">证据 ID：L1-E###</div></div>
+        <div class="step"><div class="num">020</div><div><h3>中性候选路线</h3><p>生成 2–3 条候选路线，列出适用条件、失败模式、证据映射和最小验证方式。</p></div><div class="owner">不先选路线再找证据</div></div>
+        <div class="step"><div class="num">030</div><div><h3>独立对抗评审</h3><p>Claude 网页端独立联网证伪，输出 BLOCKER / RISK / 最小缓解方案；BLOCKER 必须通过校准表。</p></div><div class="owner">反方不是顺从式润色</div></div>
+        <div class="step"><div class="num">035</div><div><h3>路线裁决</h3><p>新鲜上下文处置所有 BLOCKER，明确 SELECTED 路线、未选原因、保留风险和 Spike 设计。</p></div><div class="owner">G1 第二道：路线确认</div></div>
+        <div class="step"><div class="num">040</div><div><h3>三类验证桩</h3><p>Spike A 可行性、Spike B 反证、Spike C 集成。必做段 FAIL 或无证据则返回路线阶段。</p></div><div class="owner">进入 Loop 2 的唯一入口</div></div>
+      </div>
+    </section>
+
+    <section id="loop2" class="section wrap">
+      <h2>Loop 2 · 协同交付层：再把事做对</h2>
+      <p class="sub">Claude Code 负责规划、派工和终检；Codex 只执行 approved plan，并用证据、测试和复盘交付 implemented。</p>
+      <div class="timeline">
+        <div class="step loop2"><div class="num">08</div><div><h3>Claude Code 仓库探索 + 联网实现调研</h3><p>从 040 接手，按回链读取 010/012/015/020/030/035，建立同号调研台账。</p></div><div class="owner">证据 ID：CC-R###</div></div>
+        <div class="step loop2"><div class="num">09</div><div><h3>INSTRUCTION LOAD CHECK</h3><p>验证关键指令真的被加载，检查 override、截断、hook 状态和上下文遗漏。</p></div><div class="owner">未通过不得规划/执行</div></div>
+        <div class="step loop2"><div class="num">10</div><div><h3>draft plan + Test Oracle + PLAN AUDIT</h3><p>写入 docs/dev/plans/NNN-模块名-计划.md；产物清单、验收锚点、测试路径、回滚边界必须齐备。</p></div><div class="owner">没有 Test Oracle 不得 approved</div></div>
+        <div class="step loop2"><div class="num">11</div><div><h3>G2 执行门</h3><p>人类批准 plan 从 draft 变为 approved；外部写操作是 G2 内的子决策，必须逐项批准。</p></div><div class="owner">批准“怎么做”</div></div>
+        <div class="step loop2"><div class="num">12</div><div><h3>WORKTREE CHECK</h3><p>标准/重型硬门禁：检查文件隔离，也检查 DB、环境变量、端口、服务和资源隔离。</p></div><div class="owner">防止污染运行项目</div></div>
+        <div class="step loop2"><div class="num">13</div><div><h3>Codex 独立联网复核 + 实现 + 测试</h3><p>Codex 不改计划、不换路线；若证据冲突则 RESEARCH CONFLICT 回传，否则按清单落盘并测试。</p></div><div class="owner">状态推进到 implemented</div></div>
+        <div class="step loop2"><div class="num">14</div><div><h3>Claude Code 终检</h3><p>新鲜上下文 + 联网反证 + CC-V 证据；核查产物命名、规格符合性、Test Oracle 和安全边界。</p></div><div class="owner">INITIAL REVIEW: PASS/REWORK/BLOCKED</div></div>
+        <div class="step loop2"><div class="num">15</div><div><h3>G3 验收门</h3><p>人类用新鲜证据终验，确认 verified。verified 只能由人类终验产生，不能由执行自述产生。</p></div><div class="owner">批准“是否真的完成”</div></div>
+      </div>
+    </section>
+
+    <section class="section wrap">
+      <div class="two">
+        <div class="panel">
+          <h2>状态机</h2>
+          <p class="sub">停机不能伪装成完成；blocked 就是 blocked。</p>
+          <div class="state"><span class="pill">draft</span><span class="arrow">→</span><span class="pill">approved</span><span class="arrow">→</span><span class="pill">implemented</span><span class="arrow">→</span><span class="pill">verified</span></div>
+          <p style="margin-top:16px"><b>execution:</b> not_started → researching → running → blocked | completed<br><b>review:</b> pending → rework | blocked | pass</p>
         </div>
-        <div class="tl-item">
-          <div class="tl-dot"></div>
-          <div class="tl-code">020</div>
-          <div class="tl-title">候选路线</div>
-          <div class="tl-desc">基于问题定义，生成多条候选技术路线或研究方案，评估可行性后选择最优路径。</div>
-          <div class="tl-progress"><div class="tl-progress-bar" data-width="80"></div></div>
-        </div>
-        <div class="tl-item">
-          <div class="tl-dot"></div>
-          <div class="tl-code">030</div>
-          <div class="tl-title">评审分级</div>
-          <div class="tl-desc">对任务按优先级、风险和依赖关系进行分级排序，确定执行顺序。</div>
-          <div class="tl-progress"><div class="tl-progress-bar" data-width="60"></div></div>
-        </div>
-        <div class="tl-item">
-          <div class="tl-dot"></div>
-          <div class="tl-code">040</div>
-          <div class="tl-title">验证桩 Spike</div>
-          <div class="tl-desc">对高风险或不确定的任务执行最小验证实验，确认技术可行性后再全面铺开。</div>
-          <div class="tl-progress"><div class="tl-progress-bar" data-width="40"></div></div>
-        </div>
-        <div class="tl-item">
-          <div class="tl-dot"></div>
-          <div class="tl-code">050</div>
-          <div class="tl-title">执行与复盘</div>
-          <div class="tl-desc">多智能体并行执行任务，完成后对照 Spec 进行验收复盘，更新知识库。</div>
-          <div class="tl-progress"><div class="tl-progress-bar" data-width="20"></div></div>
+        <div class="panel">
+          <h2>三道人类门</h2>
+          <div class="gate"><strong>G1 方向门</strong>：010 FROZEN + 035 SELECTED，确认“去哪”。</div>
+          <div class="gate" style="margin-top:10px"><strong>G2 执行门</strong>：plan approved，确认“怎么做”。</div>
+          <div class="gate" style="margin-top:10px"><strong>G3 验收门</strong>：verified，确认“是否真的完成”。</div>
         </div>
       </div>
     </section>
 
-    <!-- ==================== WHY THIS TRACK ==================== -->
-    <section class="reveal">
-      <h2 class="section-title">为什么适合科研 / 工程协作</h2>
-      <div class="callout">
-        <p>ResearchLoop 的核心场景面向科研、竞赛和工程协作，兼具方法论、工具化和可审计交付属性。</p>
+    <section class="section wrap">
+      <h2>文件与证据总线</h2>
+      <p class="sub">角色之间不搬聊天记录，而是通过同号文件、证据 ID 和回链传递上下文。</p>
+      <div class="cards">
+        <article class="card"><h3>Loop 1 Spec</h3><p>docs/dev/spec/010、012、015、020、030、035、040。040 是 Loop 2 唯一入口。</p></article>
+        <article class="card"><h3>同号交付链</h3><p>research/NNN-调研台账 → plans/NNN-计划 → retrospectives/NNN-复盘 → reviews/NNN-核查。</p></article>
+        <article class="card"><h3>证据 ID</h3><p>L1-E###、CC-R###、CX-R###、CC-V###；关键结论必须引用证据 ID。</p></article>
       </div>
-      <ul>
-        <li><strong>学习场景：</strong>帮助研究生、竞赛队伍在科研和竞赛中建立结构化思维，提升问题分析与定义能力</li>
-        <li><strong>工作场景：</strong>为科研写作者、项目管理者提供标准化工具，提升团队协作与执行效率</li>
-        <li><strong>AI 赋能：</strong>通过多智能体协作，展示 AI 在复杂知识工作中的应用潜力</li>
-        <li><strong>工具属性：</strong>直接作为生产力工具使用，而非纯概念展示，具有明确的实用价值</li>
-      </ul>
-      <blockquote>
-        "ResearchLoop 不仅是一个工具，更是一种工作方法的沉淀 —— 让每一次复杂任务的启动，都从清晰的问题定义开始。"
-      </blockquote>
     </section>
 
-  </div>
+    <section class="section wrap">
+      <h2>全局红线</h2>
+      <div class="panel">
+        <ul class="danger-list">
+          <li><span class="no">禁止</span> 标准/重型任务未通过 010/015/035/040 就进入 Loop 2。</li>
+          <li><span class="no">禁止</span> 执行未 approved 的 plan；没有 PLAN AUDIT: PASS 不交接。</li>
+          <li><span class="no">禁止</span> 没有 Test Oracle / 验收锚点的 plan 被 approved。</li>
+          <li><span class="no">禁止</span> Codex 自行换路线、改范围、改验收或降低测试来宣称通过。</li>
+          <li><span class="no">禁止</span> 上传私有代码/数据、硬编码密钥、执行未知脚本。</li>
+          <li><span class="ok">要求</span> 标准/重型通过 WORKTREE CHECK，执行前通过 INSTRUCTION LOAD CHECK。</li>
+        </ul>
+      </div>
+    </section>
 
-  <footer>
-    <p>ResearchLoop V4 · Multi-Agent Research Workflow</p>
-    <p style="margin-top:0.5rem;font-size:0.8rem;">让模糊目标变清晰，让复杂任务可执行</p>
+    <section id="prompts" class="section wrap">
+      <h2>复制提示词入口</h2>
+      <p class="sub">这不是完整指令文件，只是启动入口。正式执行仍以仓库 docs/v4 下的三份 V4 指令为准。</p>
+      <div class="tabs">
+        <button class="tab active" data-tab="start">任务启动</button>
+        <button class="tab" data-tab="reviewer">Claude Code 审查官</button>
+        <button class="tab" data-tab="executor">Codex 执行员</button>
+      </div>
+      <div class="tab-content active" id="start">
+        <div class="codebox"><button class="copy">复制</button><pre>请按 ResearchLoop V4 启动本任务。
+第一步只做轨道选择与 010 问题定义：
+1. 判断任务是轻型 / 标准 / 重型，并说明理由；
+2. 写出一句话目标、成功标准、硬约束、明确不做、已知事实、未知项；
+3. 对成功标准和验收口径逐条向人类确认；
+4. 未 FROZEN 前不得进入路线选择或实现。</pre></div>
+      </div>
+      <div class="tab-content" id="reviewer">
+        <div class="codebox"><button class="copy">复制</button><pre>你是 ResearchLoop V4 的 Claude Code 审查官。
+请先读取 docs/v4/000-dual-loop-controller-v4.md 与 010-claude-code-reviewer-v4.md。
+从 docs/dev/spec/040-验证桩结论.md 接手，按回链读取 010/012/015/020/030/035。
+完成 INSTRUCTION LOAD CHECK、仓库探索、联网实现调研、同号调研台账、draft plan、Test Oracle 与 PLAN AUDIT。
+未通过门禁不得写业务实现；plan 未 approved 不得派工给 Codex。</pre></div>
+      </div>
+      <div class="tab-content" id="executor">
+        <div class="codebox"><button class="copy">复制</button><pre>你是 ResearchLoop V4 的 Codex 执行员。
+请先读取 docs/v4/000-dual-loop-controller-v4.md 与 020-codex-executor-v4.md。
+只执行用户指定的 approved plan；开始前完成 INSTRUCTION LOAD CHECK、执行前联网复核和 WORKTREE CHECK。
+不得改计划、换路线、扩大范围或降低验收。
+如发现证据冲突，输出 RESEARCH CONFLICT 并停机回传；如通过，则按产物清单逐字落盘、测试、追加 CX-R 证据和过程复盘，最后输出 EXECUTION DONE。</pre></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer wrap">
+    ResearchLoop V4 · workflow demo rebuilt from the V4 instruction files and flowchart. Source: <a href="https://github.com/124-creator/ResearchLoop">GitHub repository</a>.
   </footer>
 
-  <!-- Toast -->
-  <div class="toast" id="toast"></div>
-
   <script>
-    // === Scroll Reveal ===
-    (function() {
-      var reveals = document.querySelectorAll('.reveal');
-      var observer = new IntersectionObserver(function(entries) {
-        entries.forEach(function(entry) {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-            // Animate timeline progress bars inside
-            var bars = entry.target.querySelectorAll('.tl-progress-bar');
-            bars.forEach(function(bar) {
-              var w = bar.getAttribute('data-width');
-              setTimeout(function() { bar.style.width = w + '%'; }, 300);
-            });
-          }
-        });
-      }, { threshold: 0.15 });
-      reveals.forEach(function(el) { observer.observe(el); });
-    })();
-
-    // === Spec Generator ===
-    var rawMarkdown = '';
-
-    function esc(s) {
-      return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    }
-
-    function generateSpec() {
-      var topic = document.getElementById('sp-topic').value.trim();
-      var user = document.getElementById('sp-user').value.trim();
-      var time = document.getElementById('sp-time').value.trim();
-      var criteria = document.getElementById('sp-criteria').value.trim();
-      var constraints = document.getElementById('sp-constraints').value.trim();
-      var outscope = document.getElementById('sp-outscope').value.trim();
-      var known = document.getElementById('sp-known').value.trim();
-      var unknown = document.getElementById('sp-unknown').value.trim();
-
-      if (!topic) {
-        showToast('请至少填写项目主题');
-        return;
-      }
-
-      var today = new Date();
-      var dateStr = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
-
-      var criteriaList = criteria ? criteria.split(/[,，;；]/).map(function(s){return s.trim();}).filter(Boolean) : ['需进一步明确'];
-      var constraintList = constraints ? constraints.split(/[,，;；]/).map(function(s){return s.trim();}).filter(Boolean) : ['需进一步明确'];
-      var outscopeList = outscope ? outscope.split(/[,，;；]/).map(function(s){return s.trim();}).filter(Boolean) : ['需进一步明确'];
-      var knownList = known ? known.split('\n').map(function(s){return s.trim();}).filter(Boolean) : ['待补充'];
-      var unknownList = unknown ? unknown.split('\n').map(function(s){return s.trim();}).filter(Boolean) : ['待补充'];
-
-      // Build raw markdown for copy/download
-      var lines = [];
-      lines.push('# 010-问题定义.md');
-      lines.push('');
-      lines.push('**轨道：** 标准');
-      lines.push('');
-      lines.push('**一句话目标：** ' + topic);
-      lines.push('');
-      lines.push('**目标用户：** ' + (user || '待补充'));
-      lines.push('');
-      lines.push('## 成功标准');
-      criteriaList.forEach(function(c, i) { lines.push((i+1) + '. ' + c); });
-      lines.push('');
-      lines.push('## 硬约束');
-      constraintList.forEach(function(c, i) { lines.push((i+1) + '. ' + c); });
-      lines.push('');
-      lines.push('## 明确不做 (Out of Scope)');
-      outscopeList.forEach(function(c, i) { lines.push('- ' + c); });
-      lines.push('');
-      lines.push('## 已知事实');
-      knownList.forEach(function(c, i) { lines.push('- ' + c); });
-      lines.push('');
-      lines.push('## 未知项');
-      unknownList.forEach(function(c, i) { lines.push('- ' + c); });
-      lines.push('');
-      lines.push('## 冻结状态');
-      lines.push('**FROZEN** — ' + dateStr);
-      lines.push('');
-      lines.push('**确认人：** ___________');
-
-      rawMarkdown = lines.join('\n');
-
-      // Build HTML for display
-      var htmlLines = [];
-      htmlLines.push('<span class="md-h1"># 010-问题定义.md</span>');
-      htmlLines.push('');
-      htmlLines.push('<span class="md-bold">轨道：</span> 标准');
-      htmlLines.push('');
-      htmlLines.push('<span class="md-bold">一句话目标：</span> ' + esc(topic));
-      htmlLines.push('');
-      htmlLines.push('<span class="md-bold">目标用户：</span> ' + esc(user || '待补充'));
-      htmlLines.push('');
-      htmlLines.push('<span class="md-h2">## 成功标准</span>');
-      criteriaList.forEach(function(c, i) { htmlLines.push((i+1) + '. ' + esc(c)); });
-      htmlLines.push('');
-      htmlLines.push('<span class="md-h2">## 硬约束</span>');
-      constraintList.forEach(function(c, i) { htmlLines.push((i+1) + '. ' + esc(c)); });
-      htmlLines.push('');
-      htmlLines.push('<span class="md-h2">## 明确不做 (Out of Scope)</span>');
-      outscopeList.forEach(function(c) { htmlLines.push('- ' + esc(c)); });
-      htmlLines.push('');
-      htmlLines.push('<span class="md-h2">## 已知事实</span>');
-      knownList.forEach(function(c) { htmlLines.push('- ' + esc(c)); });
-      htmlLines.push('');
-      htmlLines.push('<span class="md-h2">## 未知项</span>');
-      unknownList.forEach(function(c) { htmlLines.push('- ' + esc(c)); });
-      htmlLines.push('');
-      htmlLines.push('<span class="md-h2">## 冻结状态</span>');
-      htmlLines.push('<span class="md-success">FROZEN</span> — ' + dateStr);
-      htmlLines.push('');
-      htmlLines.push('<span class="md-muted">确认人：___________</span>');
-
-      var output = document.getElementById('spec-output');
-      output.innerHTML = htmlLines.join('\n');
-      output.classList.add('active');
-      document.getElementById('btn-copy').disabled = false;
-      document.getElementById('btn-download').disabled = false;
-      showToast('问题定义文档已生成');
-    }
-
-    function copySpec() {
-      if (!rawMarkdown) return;
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(rawMarkdown).then(function() {
-          showToast('Markdown 已复制到剪贴板');
-        });
-      } else {
-        var ta = document.createElement('textarea');
-        ta.value = rawMarkdown;
-        ta.style.position = 'fixed';
-        ta.style.left = '-9999px';
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand('copy');
-        document.body.removeChild(ta);
-        showToast('Markdown 已复制到剪贴板');
-      }
-    }
-
-    function downloadSpec() {
-      if (!rawMarkdown) return;
-      var blob = new Blob([rawMarkdown], { type: 'text/markdown;charset=utf-8' });
-      var url = URL.createObjectURL(blob);
-      var a = document.createElement('a');
-      a.href = url;
-      a.download = '010-问题定义.md';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      showToast('文件已开始下载');
-    }
-
-    // === Toast ===
-    var toastTimer;
-    function showToast(msg) {
-      var t = document.getElementById('toast');
-      t.textContent = msg;
-      t.classList.add('show');
-      clearTimeout(toastTimer);
-      toastTimer = setTimeout(function() { t.classList.remove('show'); }, 2500);
-    }
+    document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{
+      document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+      btn.classList.add('active'); document.getElementById(btn.dataset.tab).classList.add('active');
+    }));
+    document.querySelectorAll('.copy').forEach(btn=>btn.addEventListener('click',async()=>{
+      const text=btn.parentElement.querySelector('pre').innerText;
+      try{await navigator.clipboard.writeText(text);btn.textContent='已复制';setTimeout(()=>btn.textContent='复制',1200)}catch(e){btn.textContent='复制失败'}
+    }));
   </script>
-
 </body>
 </html>
