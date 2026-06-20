@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="ResearchLoop V4.1 是一个中文双循环 AI Agent 工作流控制台，展示 GPT-Pro、Claude 与 Codex 的方案校验循环和执行验证循环。">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2716%27 fill=%27%2307111f%27/%3E%3Cpath d=%27M18 21c7-8 20-8 27 0 7 8 5 20-4 26-7 5-18 4-24-3%27 fill=%27none%27 stroke=%27%232dd4ff%27 stroke-width=%275%27 stroke-linecap=%27round%27/%3E%3Cpath d=%27M45 43c-7 8-20 8-27 0-7-8-5-20 4-26 7-5 18-4 24 3%27 fill=%27none%27 stroke=%27%238b5cf6%27 stroke-width=%275%27 stroke-linecap=%27round%27/%3E%3C/svg%3E">
+  <title>ResearchLoop V4.1 — 中文双循环 Agent 工作流控制台</title>
+  <style>
+    :root {
+      --bg: #07111f;
+      --bg-2: #0b1628;
+      --panel: rgba(15, 29, 51, 0.78);
+      --panel-2: rgba(10, 22, 40, 0.9);
+      --line: rgba(148, 163, 184, 0.18);
+      --line-strong: rgba(45, 212, 255, 0.35);
+      --text: #f8fbff;
+      --muted: #9fb4ce;
+      --muted-2: #6f84a2;
+      --cyan: #2dd4ff;
+      --cyan-2: #06b6d4;
+      --violet: #8b5cf6;
+      --violet-2: #a78bfa;
+      --amber: #f59e0b;
+      --emerald: #10b981;
+      --red: #ef4444;
+      --blue: #2563eb;
+      --white-soft: rgba(255,255,255,0.78);
+      --shadow-cyan: 0 0 48px rgba(45, 212, 255, 0.23);
+      --shadow-violet: 0 0 54px rgba(139, 92, 246, 0.24);
+      --shadow-dark: 0 24px 80px rgba(0,0,0,0.35);
+      --radius-xl: 32px;
+      --radius-lg: 24px;
+      --radius-md: 16px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", "Microsoft YaHei", Arial, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--text);
+      font-family: var(--sans);
+      background:
+        radial-gradient(circle at 14% 4%, rgba(45,212,255,0.18), transparent 28rem),
+        radial-gradient(circle at 86% 8%, rgba(139,92,246,0.18), transparent 30rem),
+        radial-gradient(circle at 52% 48%, rgba(16,185,129,0.08), transparent 36rem),
+        linear-gradient(180deg, #07111f 0%, #081325 48%, #09111d 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+      background-size: 32px 32px;
+      mask-image: radial-gradient(circle at 50% 20%, #000 0 35%, transparent 78%);
+      z-index: -1;
+    }
+    a { color: inherit; text-decoration: none; }
+    button, textarea, select { font: inherit; }
+    button { cursor: pointer; }
+    img { display: block; max-width: 100%; }
+    ::selection { background: rgba(45, 212, 255, 0.24); }
+    .shell { width: min(1220px, calc(100% - 36px)); margin: 0 auto; }
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 60;
+      background: rgba(7,17,31,0.72);
+      border-bottom: 1px solid rgba(148,163,184,0.16);
+      backdrop-filter: blur(20px);
+    }
+    .nav { min-height: 72px; display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+    .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .mark {
+      width: 44px; height: 44px; border-radius: 16px;
+      background:
+        conic-gradient(from 30deg, var(--cyan), var(--violet), var(--emerald), var(--cyan));
+      box-shadow: var(--shadow-cyan);
+      position: relative;
+    }
+    .mark::before { content:""; position:absolute; inset:7px; border-radius: 12px; background: var(--bg); }
+    .mark::after { content:"∞"; position:absolute; inset:0; display:grid; place-items:center; color:var(--cyan); font-size:26px; font-weight:900; }
+    .brand strong { display:block; letter-spacing:-0.03em; }
+    .brand span span { display:block; color:var(--muted); font-size:12px; margin-top:2px; }
+    .navlinks { display:flex; gap:4px; align-items:center; overflow-x:auto; scrollbar-width:none; }
+    .navlinks::-webkit-scrollbar { display:none; }
+    .navlinks a { color: var(--muted); padding: 9px 11px; border-radius:999px; white-space:nowrap; font-size:13px; }
+    .navlinks a:hover, .navlinks a:focus-visible { color:var(--text); background:rgba(45,212,255,0.09); }
+    .repo-btn, .btn {
+      border: 1px solid rgba(45,212,255,0.22);
+      color: var(--text);
+      background: rgba(255,255,255,0.06);
+      padding: 11px 14px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items:center;
+      gap:8px;
+      font-weight: 850;
+      box-shadow: 0 12px 36px rgba(0,0,0,0.18);
+      transition: transform .18s ease, border-color .18s ease, background .18s ease;
+    }
+    .btn:hover, .repo-btn:hover { transform: translateY(-2px); border-color: rgba(45,212,255,0.55); background: rgba(45,212,255,0.12); }
+    .btn.primary { border:0; background: linear-gradient(135deg, var(--cyan), var(--blue)); color:#03101f; box-shadow: var(--shadow-cyan); }
+    .btn.violet { border:0; background: linear-gradient(135deg, var(--violet), #4f46e5); color:#fff; box-shadow: var(--shadow-violet); }
+    .btn.amber { border:0; background: linear-gradient(135deg, var(--amber), #f97316); color:#160d00; }
+    .btn.small { padding: 8px 11px; font-size: 13px; }
+
+    .hero { padding: 76px 0 34px; }
+    .hero-grid { display:grid; grid-template-columns: minmax(0, 1.05fr) minmax(360px, .78fr); gap:34px; align-items:center; }
+    .eyebrow { display:inline-flex; gap:9px; align-items:center; color:var(--cyan); background:rgba(45,212,255,0.1); border:1px solid rgba(45,212,255,0.22); padding:8px 12px; border-radius:999px; font-weight:900; font-size:13px; }
+    .eyebrow i { width:9px; height:9px; border-radius:50%; background:var(--emerald); box-shadow:0 0 0 7px rgba(16,185,129,0.14); }
+    h1 { margin:22px 0 18px; font-size:clamp(42px, 7vw, 78px); line-height:.98; letter-spacing:-.065em; }
+    .gradient-text { background:linear-gradient(105deg, var(--cyan), var(--violet-2) 46%, #f8fbff 86%); -webkit-background-clip:text; background-clip:text; color:transparent; }
+    .lead { color:#c7d7ea; font-size:clamp(17px,2vw,21px); line-height:1.8; max-width:850px; margin:0; }
+    .hero-actions { display:flex; flex-wrap:wrap; gap:12px; margin:28px 0 20px; }
+    .role-strip { display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap:12px; margin-top:24px; }
+    .role-card { border:1px solid var(--line); background:rgba(255,255,255,0.055); border-radius:20px; padding:15px; min-height:118px; position:relative; overflow:hidden; }
+    .role-card::after { content:""; position:absolute; width:130px; height:130px; border-radius:50%; right:-60px; bottom:-70px; background:radial-gradient(circle, rgba(45,212,255,.16), transparent 70%); }
+    .role-card.claude::after { background:radial-gradient(circle, rgba(245,158,11,.16), transparent 70%); }
+    .role-card.codex::after { background:radial-gradient(circle, rgba(139,92,246,.18), transparent 70%); }
+    .role-card strong { display:block; font-size:18px; margin-bottom:8px; }
+    .role-card span { color:var(--muted); line-height:1.55; font-size:13px; }
+    .hero-panel { border:1px solid rgba(255,255,255,0.13); background:linear-gradient(180deg, rgba(15,29,51,.82), rgba(7,17,31,.92)); border-radius:var(--radius-xl); padding:18px; box-shadow:var(--shadow-dark); }
+    .loop-summary { display:grid; gap:14px; }
+    .summary-card { border:1px solid var(--line); border-radius:24px; padding:18px; background:rgba(255,255,255,0.055); }
+    .summary-card h3 { margin:0 0 10px; font-size:22px; letter-spacing:-.04em; }
+    .summary-card p { margin:0; color:var(--muted); line-height:1.7; }
+    .summary-card.loop1 { box-shadow: inset 4px 0 0 var(--cyan); }
+    .summary-card.loop2 { box-shadow: inset 4px 0 0 var(--violet); }
+    .mini-cycle { display:grid; grid-template-columns: 1fr auto 1fr; gap:10px; align-items:center; margin-top:14px; }
+    .mini-cycle span { border:1px solid var(--line); background:rgba(255,255,255,.055); border-radius:14px; padding:10px; text-align:center; color:#dbeafe; font-weight:850; font-size:13px; }
+    .mini-cycle b { color:var(--amber); font-size:20px; }
+
+    section { padding: 48px 0; }
+    .section-head { display:flex; justify-content:space-between; align-items:end; gap:24px; margin-bottom:22px; }
+    .kicker { color:var(--cyan); text-transform:uppercase; letter-spacing:.14em; font-weight:900; font-size:12px; }
+    h2 { margin:8px 0 0; font-size:clamp(30px,4vw,50px); line-height:1.08; letter-spacing:-.05em; }
+    .section-copy { color:var(--muted); line-height:1.75; max-width:690px; margin:8px 0 0; }
+    .panel { background:var(--panel); border:1px solid var(--line); border-radius:var(--radius-lg); box-shadow:var(--shadow-dark); backdrop-filter: blur(16px); }
+
+    .control-layout { display:grid; grid-template-columns:minmax(0, 1.15fr) minmax(360px, .8fr); gap:18px; align-items:start; }
+    .control-room { padding:20px; position:relative; overflow:hidden; }
+    .control-room::before { content:""; position:absolute; inset:20px; border-radius:36px; border:1px dashed rgba(45,212,255,.14); pointer-events:none; }
+    .control-toolbar { position:relative; z-index:2; display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between; align-items:center; margin-bottom:18px; }
+    .round-badge { display:inline-flex; gap:8px; align-items:center; padding:9px 12px; border-radius:999px; border:1px solid rgba(16,185,129,.25); background:rgba(16,185,129,.1); color:#bbf7d0; font-weight:900; }
+    .toolbar-buttons { display:flex; gap:9px; flex-wrap:wrap; }
+    .loop-grid { position:relative; z-index:2; display:grid; grid-template-columns:1fr; gap:16px; }
+    .loop-card { border:1px solid var(--line); border-radius:28px; background:rgba(255,255,255,.045); padding:18px; position:relative; overflow:hidden; }
+    .loop-card.active-loop { border-color:rgba(45,212,255,.52); box-shadow:var(--shadow-cyan); }
+    .loop-card.loop2.active-loop { border-color:rgba(139,92,246,.55); box-shadow:var(--shadow-violet); }
+    .loop-card::after { content:""; position:absolute; width:260px; height:260px; right:-120px; top:-120px; border-radius:50%; background:radial-gradient(circle, rgba(45,212,255,.14), transparent 70%); }
+    .loop-card.loop2::after { background:radial-gradient(circle, rgba(139,92,246,.16), transparent 70%); }
+    .loop-title { display:flex; justify-content:space-between; gap:14px; align-items:start; margin-bottom:15px; position:relative; z-index:2; }
+    .loop-title h3 { margin:0; font-size:24px; letter-spacing:-.04em; }
+    .loop-title p { margin:5px 0 0; color:var(--muted); line-height:1.55; }
+    .loop-badge { font-family:var(--mono); color:#06111f; background:var(--cyan); border-radius:999px; padding:7px 10px; font-weight:900; white-space:nowrap; }
+    .loop2 .loop-badge { color:#fff; background:var(--violet); }
+    .node-track { position:relative; z-index:2; display:grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap:10px; }
+    .node {
+      min-height:112px;
+      border:1px solid rgba(148,163,184,.18);
+      background:rgba(7,17,31,.64);
+      color:var(--text);
+      border-radius:20px;
+      padding:13px;
+      text-align:left;
+      position:relative;
+      overflow:hidden;
+      transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+    .node::before { content:""; position:absolute; left:12px; right:12px; top:0; height:3px; border-radius:999px; background:var(--cyan); opacity:.65; }
+    .loop2 .node::before { background:var(--violet); }
+    .node:hover { transform:translateY(-2px); border-color:rgba(45,212,255,.42); }
+    .loop2 .node:hover { border-color:rgba(139,92,246,.48); }
+    .node.active { background:linear-gradient(180deg, rgba(45,212,255,.16), rgba(7,17,31,.76)); border-color:rgba(45,212,255,.72); box-shadow:0 0 0 1px rgba(45,212,255,.22), var(--shadow-cyan); }
+    .loop2 .node.active { background:linear-gradient(180deg, rgba(139,92,246,.2), rgba(7,17,31,.78)); border-color:rgba(139,92,246,.72); box-shadow:0 0 0 1px rgba(139,92,246,.25), var(--shadow-violet); }
+    .node small { color:var(--muted); font-family:var(--mono); font-weight:850; }
+    .node strong { display:block; margin:8px 0 6px; font-size:15px; line-height:1.35; }
+    .node span { color:#bfd0e7; font-size:12px; line-height:1.45; }
+    .node .agent-dot { position:absolute; right:10px; top:10px; width:10px; height:10px; border-radius:50%; background:var(--cyan); box-shadow:0 0 14px var(--cyan); }
+    .node[data-agent="Claude"] .agent-dot { background:var(--amber); box-shadow:0 0 14px var(--amber); }
+    .node[data-agent="Codex"] .agent-dot { background:var(--violet); box-shadow:0 0 14px var(--violet); }
+    .bridge-strip { position:relative; z-index:2; display:flex; justify-content:center; margin:3px 0; }
+    .bridge-strip span { border:1px solid rgba(245,158,11,.28); color:#fde68a; background:rgba(245,158,11,.1); padding:8px 12px; border-radius:999px; font-weight:900; }
+
+    .cockpit { padding:20px; position:sticky; top:92px; }
+    .active-agent { display:flex; justify-content:space-between; gap:12px; align-items:center; }
+    .agent-chip { display:inline-flex; align-items:center; gap:8px; border-radius:999px; padding:8px 12px; background:rgba(45,212,255,.12); border:1px solid rgba(45,212,255,.25); color:#a5f3fc; font-weight:950; }
+    .agent-chip.claude { background:rgba(245,158,11,.12); border-color:rgba(245,158,11,.28); color:#fde68a; }
+    .agent-chip.codex { background:rgba(139,92,246,.13); border-color:rgba(139,92,246,.32); color:#ddd6fe; }
+    .signal { border-radius:999px; padding:8px 11px; font-weight:950; font-family:var(--mono); font-size:12px; }
+    .signal.blocker { color:#fecaca; background:rgba(239,68,68,.14); border:1px solid rgba(239,68,68,.3); }
+    .signal.risk { color:#fde68a; background:rgba(245,158,11,.13); border:1px solid rgba(245,158,11,.28); }
+    .signal.pass { color:#bbf7d0; background:rgba(16,185,129,.13); border:1px solid rgba(16,185,129,.28); }
+    .signal.draft { color:#bae6fd; background:rgba(45,212,255,.1); border:1px solid rgba(45,212,255,.24); }
+    .cockpit h3 { margin:18px 0 10px; font-size:30px; line-height:1.12; letter-spacing:-.045em; }
+    .cockpit p { color:#c6d7ea; line-height:1.75; margin:0; }
+    .meta-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:16px 0; }
+    .meta { border:1px solid var(--line); background:rgba(255,255,255,.045); border-radius:16px; padding:12px; }
+    .meta b { display:block; color:var(--muted); font-size:12px; margin-bottom:5px; }
+    .meta span { color:var(--text); font-weight:850; line-height:1.45; }
+    .state-chain { display:grid; grid-template-columns:repeat(4,1fr); gap:7px; margin-top:16px; }
+    .state-chain span { text-align:center; border:1px solid var(--line); border-radius:999px; padding:7px 6px; font-size:12px; color:var(--muted); font-weight:850; }
+    .state-chain span.active { color:#06111f; background:var(--cyan); border-color:transparent; }
+    .state-chain span.done { color:#bbf7d0; border-color:rgba(16,185,129,.32); background:rgba(16,185,129,.1); }
+
+    .linked-grid { display:grid; grid-template-columns:minmax(0, .95fr) minmax(0, 1.05fr); gap:18px; margin-top:18px; }
+    .linked-panel { padding:18px; }
+    .linked-panel h3 { margin:0 0 12px; font-size:22px; letter-spacing:-.03em; }
+    .evidence-list { display:grid; gap:10px; }
+    .evidence-item { border:1px solid var(--line); background:rgba(255,255,255,.045); border-radius:16px; padding:12px; display:grid; grid-template-columns:auto 1fr auto; gap:10px; align-items:start; }
+    .evidence-id { color:var(--cyan); font-family:var(--mono); font-weight:950; }
+    .evidence-item p { margin:0; color:#c6d7ea; line-height:1.55; }
+    .grade { color:#06111f; background:var(--emerald); border-radius:999px; padding:4px 8px; font-weight:950; font-size:12px; }
+    .prompt-box { background:#040b14; border:1px solid rgba(45,212,255,.18); border-radius:18px; overflow:hidden; }
+    .prompt-head { padding:12px 14px; display:flex; justify-content:space-between; gap:10px; align-items:center; border-bottom:1px solid rgba(148,163,184,.14); color:var(--muted); }
+    pre { margin:0; padding:16px; color:#e0f2fe; font-family:var(--mono); font-size:12px; line-height:1.72; white-space:pre-wrap; overflow:auto; max-height:330px; }
+    .copy { border:0; color:#06111f; background:var(--cyan); border-radius:999px; padding:8px 11px; font-weight:950; }
+
+    .tasklab { display:grid; grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr); gap:18px; }
+    .lab-card { padding:18px; }
+    textarea, select { width:100%; border:1px solid var(--line); background:rgba(7,17,31,.74); color:var(--text); border-radius:16px; padding:12px; outline:none; }
+    textarea { min-height:116px; resize:vertical; line-height:1.6; }
+    label { display:block; color:#dbeafe; font-weight:850; margin-bottom:8px; }
+    .lab-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px; }
+    .packet { background:#040b14; border:1px solid rgba(45,212,255,.18); border-radius:18px; padding:16px; color:#e0f2fe; font-family:var(--mono); line-height:1.72; min-height:286px; white-space:pre-wrap; }
+
+    .flow-img-card { padding:16px; }
+    .flow-img { border-radius:22px; border:1px solid var(--line); box-shadow:var(--shadow-dark); width:100%; background:#fff; }
+    .repo-strip { margin-top:28px; padding:24px; display:grid; grid-template-columns:1fr auto; gap:18px; align-items:center; background:linear-gradient(135deg, rgba(45,212,255,.11), rgba(139,92,246,.12)); border:1px solid rgba(45,212,255,.22); border-radius:var(--radius-xl); }
+    .repo-strip h2 { margin:0; }
+    .repo-strip p { color:var(--muted); line-height:1.7; margin:8px 0 0; }
+    footer { padding:34px 0 54px; color:var(--muted); }
+    .footer-line { border-top:1px solid var(--line); padding-top:18px; display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+
+    .pulse { animation:pulse 1.4s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{ box-shadow:0 0 0 0 rgba(45,212,255,.34), var(--shadow-cyan);} 50%{ box-shadow:0 0 0 10px rgba(45,212,255,0), var(--shadow-cyan);} }
+    @media (max-width: 1020px) {
+      .hero-grid, .control-layout, .linked-grid, .tasklab, .repo-strip { grid-template-columns:1fr; }
+      .cockpit { position:static; }
+      .role-strip { grid-template-columns:1fr; }
+      .node-track { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    }
+    @media (max-width: 720px) {
+      .shell { width: min(100% - 24px, 1220px); }
+      .navlinks { display:none; }
+      .hero { padding-top:42px; }
+      .node-track, .meta-grid, .state-chain, .lab-row { grid-template-columns:1fr; }
+      .hero-actions, .toolbar-buttons { flex-direction:column; align-items:stretch; }
+      .btn, .repo-btn { justify-content:center; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation:none !important; transition:none !important; scroll-behavior:auto !important; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="shell nav">
+      <a class="brand" href="#top" aria-label="ResearchLoop V4.1 首页"><span class="mark" aria-hidden="true"></span><span><strong>ResearchLoop V4.1</strong><span>中文双循环 Agent 工作流控制台</span></span></a>
+      <nav class="navlinks" aria-label="主导航"><a href="#control">双循环</a><a href="#lab">任务包</a><a href="#evidence">证据链</a><a href="#prompts">提示词</a><a href="#flowchart">完整图</a></nav>
+      <a class="repo-btn" href="https://github.com/124-creator/ResearchLoop" target="_blank" rel="noreferrer">GitHub</a>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="shell hero-grid">
+        <div>
+          <div class="eyebrow"><i></i> GPT-Pro × Claude × Codex</div>
+          <h1>先把方案审对，<br><span class="gradient-text">再把执行做对。</span></h1>
+          <p class="lead">ResearchLoop V4.1 把 AI Agent 协作拆成两个可循环闭环：Loop 1 由 GPT-Pro 生成/修复方案，Claude 独立检验并给出修改意见；Loop 2 由 Claude 给出 Plan/Review，Codex 执行、测试并提交复盘，再交给 Claude 终检。</p>
+          <div class="hero-actions"><a class="btn primary" href="#control">启动双 Loop 演示</a><button class="btn violet" type="button" id="heroPlay">自动演示循环</button><a class="btn" href="#prompts">复制协作提示词</a></div>
+          <div class="role-strip" aria-label="三类智能体角色">
+            <div class="role-card"><strong>GPT-Pro</strong><span>负责 Loop 1 的方案生成与方案修复，把 Claude 的审查意见转化为更稳的路线。</span></div>
+            <div class="role-card claude"><strong>Claude</strong><span>负责独立检验、提出 BLOCKER/RISK/PASS，也负责 Loop 2 的 Plan 与终检。</span></div>
+            <div class="role-card codex"><strong>Codex</strong><span>负责按 Plan 执行、测试、记录 diff 和复盘报告，把交付证据落到文件与命令中。</span></div>
+          </div>
+        </div>
+        <aside class="hero-panel">
+          <div class="loop-summary">
+            <article class="summary-card loop1"><h3>Loop 1：方案校验循环</h3><p>GPT-Pro 产出方案 → Claude 独立审查 → GPT-Pro 根据意见修复 → Claude 再审，直到方案能够进入执行层。</p><div class="mini-cycle"><span>GPT-Pro 方案/修复</span><b>⇄</b><span>Claude 独立检验</span></div></article>
+            <article class="summary-card loop2"><h3>Loop 2：执行验证循环</h3><p>Claude 给出执行 Plan → Codex 执行/测试/复盘 → Claude 检查 diff、测试结果与复盘，直到成为 G3 候选。</p><div class="mini-cycle"><span>Claude Plan/Review</span><b>⇄</b><span>Codex 执行/复盘</span></div></article>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="control">
+      <div class="shell">
+        <div class="section-head"><div><div class="kicker">Dual-loop control room</div><h2>点击节点，观察两个循环如何互相推进。</h2></div><p class="section-copy">这不是真实调用 LLM 的后台，而是一个公开安全的静态模拟器：它展示角色、产物、审查信号、证据链和提示词如何随循环状态变化。</p></div>
+        <div class="control-layout">
+          <div class="panel control-room">
+            <div class="control-toolbar"><span class="round-badge" id="roundBadge">Round 1 · draft</span><div class="toolbar-buttons"><button class="btn primary small" type="button" id="playBtn">自动演示循环</button><button class="btn small" type="button" id="nextBtn">下一步</button><button class="btn small" type="button" id="resetBtn">重置</button></div></div>
+            <div class="loop-grid">
+              <article class="loop-card loop1" id="loop1Card"><div class="loop-title"><div><h3>Loop 1 · 方案校验循环</h3><p>GPT-Pro 生成/修复方案，Claude 独立检验并给出修改意见。</p></div><span class="loop-badge">GPT-Pro ⇄ Claude</span></div><div class="node-track" id="loop1Nodes"></div></article>
+              <div class="bridge-strip"><span>G1/G2 通过后，方案交给执行验证循环</span></div>
+              <article class="loop-card loop2" id="loop2Card"><div class="loop-title"><div><h3>Loop 2 · 执行验证循环</h3><p>Claude 给 Plan/Review，Codex 执行、测试、复盘，再回到 Claude 终检。</p></div><span class="loop-badge">Claude ⇄ Codex</span></div><div class="node-track" id="loop2Nodes"></div></article>
+            </div>
+          </div>
+          <aside class="panel cockpit" aria-live="polite">
+            <div class="active-agent"><span class="agent-chip" id="agentChip">GPT-Pro</span><span class="signal draft" id="signalChip">DRAFT</span></div>
+            <h3 id="activeTitle">生成 010 方案草案</h3>
+            <p id="activeDesc">把模糊目标转换成可审查的问题定义，并明确非目标、隐私边界和验收标准。</p>
+            <div class="meta-grid"><div class="meta"><b>当前动作</b><span id="activeAction">方案生成</span></div><div class="meta"><b>当前产物</b><span id="activeArtifact">010 问题定义</span></div><div class="meta"><b>审查关注</b><span id="activeReview">目标是否稳定</span></div><div class="meta"><b>下一步</b><span id="activeNext">Claude 独立检验</span></div></div>
+            <div class="state-chain" id="stateChain"><span>draft</span><span>reviewed</span><span>implemented</span><span>G3 candidate</span></div>
+          </aside>
+        </div>
+        <div class="linked-grid" id="evidence">
+          <article class="panel linked-panel"><h3>联动证据链</h3><div class="evidence-list" id="evidenceList"></div></article>
+          <article class="panel linked-panel" id="prompts"><h3>联动提示词</h3><div class="prompt-box"><div class="prompt-head"><span id="promptLabel">当前节点提示词</span><button class="copy" type="button" id="copyPrompt">复制</button></div><pre id="promptText"></pre></div></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="lab">
+      <div class="shell">
+        <div class="section-head"><div><div class="kicker">010 Packet Lab</div><h2>把一句话任务变成 Loop 1 输入。</h2></div><p class="section-copy">生成结果只在浏览器本地展示，适合复制给 GPT-Pro 进入第一轮方案生成。</p></div>
+        <div class="tasklab"><article class="panel lab-card"><label for="taskInput">输入一个模糊任务</label><textarea id="taskInput">请优化 ResearchLoop Demo 页面，突出 GPT-Pro、Claude、Codex 的双循环协作，并同步到 GitHub Pages。</textarea><div class="lab-row"><div><label for="riskSelect">风险等级</label><select id="riskSelect"><option value="low">低：轻量修改</option><option value="medium" selected>中：多文件与展示风险</option><option value="high">高：外部发布或隐私边界</option></select></div><div><label for="scopeSelect">范围</label><select id="scopeSelect"><option value="one">单文件</option><option value="multi" selected>多文件</option><option value="release">公开发布</option></select></div></div><button class="btn primary" type="button" id="packetBtn" style="margin-top:14px">生成 010 输入包</button></article><article class="panel lab-card"><div class="packet" id="packetOutput"></div></article></div>
+      </div>
+    </section>
+
+    <section id="flowchart">
+      <div class="shell">
+        <div class="section-head"><div><div class="kicker">Full V4 map</div><h2>完整流程图保留为协议地图。</h2></div><p class="section-copy">上方控制台展示核心双循环；这里保留完整 V4 流程图，方便面试或 README 中快速解释全局结构。</p></div>
+        <article class="panel flow-img-card"><img class="flow-img" src="./assets/researchloop-v4-flowchart.png" alt="ResearchLoop V4 完整双 Loop 流程图"></article>
+        <div class="repo-strip"><div><h2>公开作品集定位：不是 Prompt，而是 Agent 协作机制。</h2><p>页面展示了方案审查循环、执行验证循环、证据链、复盘与 G3 候选状态，适合作为 AI Agent 方向简历项目链接。</p></div><div class="hero-actions"><a class="btn primary" href="https://github.com/124-creator/ResearchLoop" target="_blank" rel="noreferrer">打开 GitHub</a><a class="btn" href="./docs/v4/000-dual-loop-controller-v4.md">阅读协议</a></div></div>
+      </div>
+    </section>
+  </main>
+
+  <footer><div class="shell footer-line"><span>ResearchLoop V4.1 · 中文双循环 Agent 工作流控制台</span><span>静态公开 Demo：不上传文本，不调用外部 API，不包含私有数据。</span></div></footer>
+
+  <script>
+    const steps = [
+      {id:'L1-010', loop:'loop1', code:'010', agent:'GPT-Pro', signal:'DRAFT', signalClass:'draft', title:'GPT-Pro 生成 010 方案草案', desc:'把模糊任务转换成可审查的问题定义：目标、非目标、边界、验收标准和停止条件。', action:'方案生成', artifact:'010 问题定义', review:'目标是否稳定，边界是否清晰', next:'Claude 独立检验', state:0, evidence:['L1-GPT-010','BOUNDARY-010'], prompt:'你是 GPT-Pro，进入 ResearchLoop V4.1 Loop 1。\n\n请只生成 010 问题定义：\n- 目标 / 非目标\n- 用户真正想要的结果\n- 公开边界与不可触碰内容\n- 成功标准\n- 停止条件\n\n不要执行，不要修改文件。'},
+      {id:'L1-030', loop:'loop1', code:'030', agent:'Claude', signal:'BLOCKER', signalClass:'blocker', title:'Claude 独立检验并提出修改意见', desc:'Claude 不执行方案，而是审查 GPT-Pro 的 010/012/020：找 BLOCKER、风险、证据缺口和最小修复建议。', action:'独立检验', artifact:'030 审查意见', review:'是否存在 BLOCKER 或证据缺口', next:'GPT-Pro 根据意见修复', state:1, evidence:['CL-R030','BLOCKER-MAP'], prompt:'你是 Claude 独立审查官。\n\n审查 GPT-Pro 的方案包，输出：\n- BLOCKER：必须修复的问题\n- RISK：可以执行但需缓解的问题\n- PASS：可以进入执行层\n\n每条意见必须包含证据 ID、原因和最小修复建议。'},
+      {id:'L1-035', loop:'loop1', code:'035', agent:'GPT-Pro', signal:'RISK', signalClass:'risk', title:'GPT-Pro 根据 Claude 意见修复路线', desc:'GPT-Pro 吸收 Claude 的 BLOCKER/RISK，修复路线、补充 Test Oracle，并保留 rejected route 作为证据。', action:'方案修复', artifact:'035 修复后路线', review:'修改意见是否逐条闭环', next:'Claude 再次检验', state:1, evidence:['GPT-FIX-035','ORACLE-040'], prompt:'你是 GPT-Pro。\n\n根据 Claude 的 BLOCKER/RISK 清单修复方案：\n- 逐条回应修改意见\n- 补充缺失证据\n- 调整执行路线\n- 更新 Test Oracle\n- 标记哪些问题仍需人工 G2 决策\n\n不要跳过任何审查意见。'},
+      {id:'L1-040', loop:'loop1', code:'040', agent:'Claude', signal:'PASS', signalClass:'pass', title:'Claude 复检通过，形成执行输入', desc:'Claude 确认方案、风险、证据和 Test Oracle 已足够，才允许进入 Loop 2 的执行验证循环。', action:'复检放行', artifact:'040 Test Oracle + G2 候选', review:'是否可以交给执行层', next:'Claude 生成执行 Plan', state:1, evidence:['CL-PASS-040','G2-CANDIDATE'], prompt:'你是 Claude 复检者。\n\n检查修复后的方案是否满足：\n- 目标稳定\n- 风险可控\n- Test Oracle 可执行\n- 交付清单明确\n\n若满足，输出 PASS + 执行层输入；否则继续给出 BLOCKER。'},
+      {id:'L2-PLAN', loop:'loop2', code:'PLAN', agent:'Claude', signal:'DRAFT', signalClass:'draft', title:'Claude 给出可执行 Plan', desc:'Claude 把通过的方案转化为 Codex 可执行计划：允许修改的文件、步骤、测试、回滚方式和 G2 边界。', action:'执行计划', artifact:'Claude Plan', review:'计划是否可执行且边界清楚', next:'Codex 执行前检查', state:2, evidence:['CL-PLAN-L2','MANIFEST-L2'], prompt:'你是 Claude 执行计划官。\n\n基于已通过的 Loop 1 方案，写出 Codex 可执行 Plan：\n- 允许修改的文件清单\n- 步骤顺序\n- Test Oracle\n- 回滚方式\n- 不允许改变的边界\n\n不要直接实现。'},
+      {id:'L2-EXEC', loop:'loop2', code:'EXEC', agent:'Codex', signal:'RISK', signalClass:'risk', title:'Codex 按 Plan 执行、测试、记录证据', desc:'Codex 不重新定义目标，只按照 Claude Plan 修改文件、运行检查、记录 diff、截图和命令输出。', action:'执行与测试', artifact:'diff + test output', review:'是否严格遵守 Plan', next:'Codex 写复盘报告', state:2, evidence:['CX-DIFF-013','CX-TEST-013'], prompt:'你是 Codex 执行者。\n\n规则：\n- 只按 Claude Plan 执行\n- 只改交付清单中的文件\n- 修改前检查 worktree\n- 修改后运行 Test Oracle\n- 记录 diff、截图、命令输出\n\n若计划与现实冲突，停止并报告。'},
+      {id:'L2-RETRO', loop:'loop2', code:'RETRO', agent:'Codex', signal:'DRAFT', signalClass:'draft', title:'Codex 输出复盘报告', desc:'Codex 把完成内容、遇到的问题、测试结果、剩余风险写成复盘，方便 Claude 终检。', action:'复盘报告', artifact:'retrospective', review:'证据是否足够复核', next:'Claude 终检', state:2, evidence:['CX-RETRO-014','EVIDENCE-LINK'], prompt:'你是 Codex。\n\n写复盘报告：\n- 完成了什么\n- 修改了哪些文件\n- 遇到的问题与解决过程\n- Test Oracle 结果\n- 剩余风险\n- 证据 ID\n\n不要把 implemented 写成 verified。'},
+      {id:'L2-REVIEW', loop:'loop2', code:'REVIEW', agent:'Claude', signal:'PASS', signalClass:'pass', title:'Claude 检验 diff、测试与复盘', desc:'Claude 检查 Codex 的 diff、测试结果和复盘报告，若有问题则回到 Codex 修复；通过后进入 G3 候选。', action:'终检审查', artifact:'Claude final review', review:'是否满足 Test Oracle', next:'G3 候选 / 下一轮 010', state:3, evidence:['CL-FINAL-014','G3-CANDIDATE'], prompt:'你是 Claude 终检者。\n\n检查 Codex 的交付：\n- diff 是否符合 Plan\n- 测试是否真实通过\n- 复盘是否解释了问题\n- 是否存在未解决风险\n\n输出 PASS/RISK/BLOCKER。PASS 后只能称为 G3 candidate。'}
+    ];
+    let active = 0;
+    let round = 1;
+    let timer = null;
+    const $ = (id) => document.getElementById(id);
+
+    function renderNodes(){
+      $('loop1Nodes').innerHTML = steps.filter(s=>s.loop==='loop1').map(nodeHtml).join('');
+      $('loop2Nodes').innerHTML = steps.filter(s=>s.loop==='loop2').map(nodeHtml).join('');
+      document.querySelectorAll('.node').forEach(btn => btn.addEventListener('click', () => setActive(steps.findIndex(s => s.id === btn.dataset.id))));
+    }
+    function nodeHtml(s){
+      const is = steps[active].id === s.id;
+      return '<button class="node '+(is?'active pulse':'')+'" data-id="'+s.id+'" data-agent="'+s.agent+'" type="button"><span class="agent-dot"></span><small>'+s.code+' · '+s.agent+'</small><strong>'+s.title.replace(s.agent + ' ', '')+'</strong><span>'+s.action+' → '+s.artifact+'</span></button>';
+    }
+    function classForAgent(agent){ return agent === 'Claude' ? 'claude' : agent === 'Codex' ? 'codex' : ''; }
+    function setActive(i){
+      if (i < 0) i = steps.length - 1;
+      if (i >= steps.length) i = 0;
+      active = i;
+      const s = steps[active];
+      renderNodes();
+      $('loop1Card').classList.toggle('active-loop', s.loop === 'loop1');
+      $('loop2Card').classList.toggle('active-loop', s.loop === 'loop2');
+      $('agentChip').textContent = s.agent;
+      $('agentChip').className = 'agent-chip ' + classForAgent(s.agent);
+      $('signalChip').textContent = s.signal;
+      $('signalChip').className = 'signal ' + s.signalClass;
+      $('activeTitle').textContent = s.title;
+      $('activeDesc').textContent = s.desc;
+      $('activeAction').textContent = s.action;
+      $('activeArtifact').textContent = s.artifact;
+      $('activeReview').textContent = s.review;
+      $('activeNext').textContent = s.next;
+      $('roundBadge').textContent = 'Round ' + round + ' · ' + s.code + ' · ' + s.agent;
+      renderState(s.state);
+      renderEvidence(s);
+      renderPrompt(s);
+      window.__researchLoopState = {active, round, id:s.id, agent:s.agent, signal:s.signal};
+    }
+    function renderState(state){
+      const labels = ['draft','reviewed','implemented','G3 candidate'];
+      $('stateChain').innerHTML = labels.map((label, idx) => '<span class="'+(idx < state ? 'done' : idx === state ? 'active' : '')+'">'+label+'</span>').join('');
+    }
+    function renderEvidence(s){
+      $('evidenceList').innerHTML = s.evidence.map((id, idx) => '<div class="evidence-item"><span class="evidence-id">'+id+'</span><p>'+evidenceText(s, idx)+'</p><span class="grade">A</span></div>').join('');
+    }
+    function evidenceText(s, idx){
+      if (s.loop === 'loop1' && s.agent === 'Claude') return idx === 0 ? '独立审查意见已经绑定到具体 artifact。' : 'BLOCKER/RISK/PASS 可追踪到修改建议。';
+      if (s.loop === 'loop1') return idx === 0 ? 'GPT-Pro 输出的方案草案或修复版。' : '边界、Test Oracle 或路线修复证据。';
+      if (s.agent === 'Codex') return idx === 0 ? '执行 diff、测试输出或截图证据。' : '复盘报告中的问题与解决过程。';
+      return idx === 0 ? 'Claude Plan 或终检报告。' : 'G2/G3 候选与验收前证据。';
+    }
+    function renderPrompt(s){
+      $('promptLabel').textContent = s.agent + ' · ' + s.action + ' 提示词';
+      $('promptText').textContent = s.prompt;
+    }
+    function nextStep(){
+      if (active === steps.length - 1) { round += 1; setActive(0); }
+      else setActive(active + 1);
+    }
+    function togglePlay(){
+      if (timer) { clearInterval(timer); timer = null; $('playBtn').textContent = '自动演示循环'; return; }
+      $('playBtn').textContent = '暂停演示';
+      timer = setInterval(nextStep, 1450);
+    }
+    async function copyPrompt(){
+      try { await navigator.clipboard.writeText($('promptText').textContent); $('copyPrompt').textContent = '已复制'; setTimeout(() => $('copyPrompt').textContent = '复制', 1200); }
+      catch(e){ $('copyPrompt').textContent = '请手动复制'; }
+    }
+    function generatePacket(){
+      const task = $('taskInput').value.trim() || '未命名任务';
+      const risk = $('riskSelect').value;
+      const scope = $('scopeSelect').value;
+      const route = risk === 'high' || scope === 'release' ? '重型轨道：完整双 Loop + G2/G3' : risk === 'medium' || scope === 'multi' ? '标准轨道：Loop 1 审查 + Loop 2 执行复核' : '轻型轨道：最小审查 + 快速验证';
+      $('packetOutput').textContent = ['# 010 输入包 / ResearchLoop V4.1','', '任务：', task, '', '推荐路线：' + route, '', 'Loop 1 输入：', '- 由 GPT-Pro 生成问题定义与候选方案', '- 由 Claude 独立检验并给出修改意见', '- GPT-Pro 根据意见修复，直到 Claude PASS', '', 'Loop 2 输入：', '- Claude 给出可执行 Plan', '- Codex 执行、测试、复盘', '- Claude 检验 diff、测试与复盘', '', '停止条件：', '- 出现未授权外部写入、隐私风险、Test Oracle 缺失或 Plan 与现实冲突时停止。'].join('\n');
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+      renderNodes(); setActive(0); generatePacket();
+      $('nextBtn').addEventListener('click', nextStep);
+      $('playBtn').addEventListener('click', togglePlay);
+      $('heroPlay').addEventListener('click', () => { location.hash = '#control'; if(!timer) togglePlay(); });
+      $('resetBtn').addEventListener('click', () => { if(timer) togglePlay(); round = 1; setActive(0); });
+      $('copyPrompt').addEventListener('click', copyPrompt);
+      $('packetBtn').addEventListener('click', generatePacket);
+      ['taskInput','riskSelect','scopeSelect'].forEach(id => $(id).addEventListener('input', generatePacket));
+      window.__researchLoop = { nextStep, setActive, getState: () => window.__researchLoopState };
+    });
+  </script>
+</body>
+</html>
